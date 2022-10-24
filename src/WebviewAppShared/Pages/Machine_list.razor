@@ -1,0 +1,55 @@
+﻿@page "/machine_list"
+
+<h1>Machines Status</h1> 
+
+
+<div class="container">
+	<div class="row">
+		<div class="col-12">
+			<table class="table table-image">
+				<thead>
+					<tr>
+						<th scope="col">Serial Number</th>
+						<th scope="col">Image</th>
+						<th scope="col">Name</th>
+						<th scope="col">Status</th>
+						<th scope="col">Last Tested</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row" class="align-middle">5123</th>
+						<td class="w-25">
+							<img src="_content/WebviewAppShared/intimidator.jpg" class="img-fluid img-thumbnail border border-3 border-success" alt="Intimidator">
+						</td>
+						<td class="align-middle">Intimidator</td>
+						<td class="align-middle font-weight-bold text-success">GOOD</td>
+						<td class="align-middle">12 September 2022</td>
+					</tr>
+					<tr>
+						<th scope="row" class="align-middle">7123</th>
+						<td class="w-25">
+							<img src="_content/WebviewAppShared/annihilator.jpg" class="img-fluid img-thumbnail border border-3 border-warning" alt="Annihilator">
+						</td>
+						<td class="align-middle">Annihilator</td>
+						<td class="align-middle font-weight-bold text-warning">Monitor</td>
+						<td class="align-middle">16 August 2021</td>
+					</tr>
+					<tr>
+						<th scope="row" class="align-middle">5120</th>
+						<td class="w-25">
+							<img src="_content/WebviewAppShared/intimidator.jpg" class="img-fluid img-thumbnail border border-3 border-danger" alt="Intimidator">
+						</td>
+						<td class="align-middle">Intimidator</td>
+						<td class="align-middle font-weight-bold text-danger">Service</td>
+						<td class="align-middle">23 July 2021</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="col text-center">
+				<button type="button" class="btn btn-secondary btn-lg">Start Testing</button>
+				<button type="button" class="btn btn-secondary btn-lg">Review Machines</button>
+			</div>
+		</div>
+	</div>
+</div>
