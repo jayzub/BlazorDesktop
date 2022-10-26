@@ -1,3 +1,4 @@
+using DataAccessLibrary;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -31,6 +32,8 @@ namespace BlazorDesktopTest
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<AppState>();
+            services.AddTransient<ISqlDataAccess, SqlDataAccess>();
+            services.AddTransient<IDeviceData, DeviceData>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

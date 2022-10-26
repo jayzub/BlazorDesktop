@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.WindowsForms" Version="6.0.400" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

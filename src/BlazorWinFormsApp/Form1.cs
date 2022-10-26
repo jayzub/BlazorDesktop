@@ -8,6 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using WebviewAppShared;
 using WebviewAppTest;
 using WebviewAppTest.Data;
+using Microsoft.Data.SqlClient;
+using DataAccessLibrary;
+using System.Configuration;
+using Microsoft.Extensions.Configuration;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace BlazorWinFormsApp
 {
@@ -17,11 +22,18 @@ namespace BlazorWinFormsApp
 
         public Form1()
         {
+            //string connectionString =  ConfigurationManager.ConnectionStrings["ConnectionStringName"].ConnectionString;
+
+            //SqlConnection con = new SqlConnection(connectionString);
+
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddWindowsFormsBlazorWebView();
             serviceCollection.AddSingleton<AppState>(_appState);
 
             serviceCollection.AddSingleton<WeatherForecastService>();
+
+            //serviceCollection.AddSingleton<ISqlDataAccess, SqlDataAccess>();
+            //serviceCollection.AddSingleton<IDeviceData, DeviceData>();
 
             InitializeComponent();
 
@@ -37,7 +49,39 @@ namespace BlazorWinFormsApp
                 text: $"Current counter value is: {_appState.Counter}",
                 caption: "Counter");
         }
-    }
 
-    //Helpful guide on Winforms: https://docs.microsoft.com/en-us/aspnet/core/blazor/hybrid/tutorials/windows-forms?view=aspnetcore-6.0
+        private void blazorWebView1_Click(object sender, EventArgs e)
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<ISqlDataAccess, SqlDataAccess>();
+            serviceCollection.AddSingleton<IDeviceData, DeviceData>();
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            string connectionString =  ConfigurationManager.ConnectionStrings["ConnectionStringName"].ConnectionString;
+            String sqlQuery = "INSERT INTO quickmill.dbo.Devices(SerialNumber, Name) VALUES (@SerialNumber, @Name)";
+
+            SqlConnection con = new SqlConnection(connectionString);
+            con.Open();
+            SqlCommand cmd = new SqlCommand(sqlQuery, con);
+
+            var SerialNumberParameter = new SqlParameter("SerialNumber", System.Data.SqlDbType.VarChar);
+            SerialNumberParameter.Value = textBox1.Text;
+            cmd.Parameters.Add(SerialNumberParameter);
+
+            var NameParameter = new SqlParameter("Name", System.Data.SqlDbType.VarChar);
+            NameParameter.Value = textBox2.Text;
+            cmd.Parameters.Add(NameParameter);
+
+            cmd.ExecuteNonQuery();
+            con.Close();
+        }
+    }
 }

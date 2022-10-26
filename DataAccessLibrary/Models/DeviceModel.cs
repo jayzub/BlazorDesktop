@@ -4,18 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebviewAppShared.Data
+namespace DataAccessLibrary.Models
 {
-    internal class DeviceModel
+    public class DeviceModel
     {
         public int Id { get; set; }
-
         public string Name { get; set; }
-
-        public string Serial_number { get; set; }
-
+        public string SerialNumber { get; set; }
         public string Status { get; set; }
-
-        public DateTime Last_tested { get; set; }
+        public DateTime LastTested { get; set; }
     }
 }
