@@ -1,0 +1,115 @@
+﻿@page "/devices"
+@using WebviewAppShared.Data
+@using System.Data
+
+
+<h1>Current Devices</h1>
+
+<!--
+<button class="btn btn-primary" @onclick="CreateDB">Create DB</button>
+<button class="btn btn-primary" @onclick="CreateTable">Create Table</button>
+<br/>
+<span class="danger">
+    @Message
+</span>
+<br/>
+-->
+
+@if (devices is null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <table class="table table-image text-white">
+                    <thead>
+                        <tr>
+                            <th scope="col">Serial Number</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Last Tested</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in devices)
+                        {
+                            <tr>
+                                <th scope="row" class="align-middle">@item.SerialNumber</th>
+                                <td class="w-25">
+                                    <img src="_content/WebviewAppShared/@item.Image" class="img-fluid img-thumbnail border border-3 border-success" alt="@item.Image">
+                                </td>
+                                <td class="align-middle">@item.Name</td>
+                                <td class="align-middle">@item.Status</td>
+                                <td class="align-middle">@item.LastTested</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="col text-center">
+                    <button type="button" class="btn btn-secondary btn-lg">Start Testing</button>
+                    <button type="button" class="btn btn-secondary btn-lg">Review Machines</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+
+    public Database dbConn { get; set;  }
+    public DataTable dataTable { get; set; }
+    public Device objDevice { get; set; }
+    public List<Device> devices { get; set; }
+    public string query { get; set; }
+    public string Message { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        dbConn = new Database();
+        objDevice = new Device();
+        GetData();
+        return base.OnInitializedAsync();
+    }
+
+    /*
+    public void CreateDB()
+    {
+        dbConn.CreateDB();
+        Message = "DB Created Successfully!!";
+    }
+    */
+
+    /*
+    public void CreateTable()
+    {
+        query = "CREATE TABLE Devices (SerialNumber VARCHAR(50) PRIMARY KEY, Image IMAGE, Name VARCHAR(50), Status VARCHAR(50), LastTested DATETIME default current_timestamp)";
+        dbConn.CreateTable(query);
+        Message = "Table Created Successfully!!";
+    }
+    */
+
+    public void GetData()
+    {
+        //query = "SELECT rowid, * FROM Devices";
+        query = "SELECT * FROM Devices";
+        dataTable = dbConn.GetData(query);
+
+        devices = new List<Device>();
+
+        for (int i = 0; i < dataTable.Rows.Count; i++)
+        {
+            Device dvc = new Device();
+            //dvc.Id = Convert.ToString(dataTable.Rows[i]["rowid"]);
+            dvc.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
+            dvc.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
+            dvc.Image = Convert.ToString(dataTable.Rows[i]["Image"]);
+            dvc.Status = Convert.ToString(dataTable.Rows[i]["Status"]);
+            dvc.LastTested = Convert.ToString(dataTable.Rows[i]["LastTested"]);
+            devices.Add(dvc);
+        }
+    }
+}
