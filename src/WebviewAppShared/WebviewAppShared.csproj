@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Shared\QuickMill_out.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
@@ -16,6 +20,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView" Version="6.0.6" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
     <PackageReference Include="MySql.Data" Version="8.0.31" />
+    <PackageReference Include="Radzen.Blazor" Version="4.2.2" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.116" />
   </ItemGroup>
 
