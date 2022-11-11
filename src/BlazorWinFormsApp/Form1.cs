@@ -13,6 +13,7 @@ using DataAccessLibrary;
 using System.Configuration;
 using Microsoft.Extensions.Configuration;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
+using Radzen;
 
 namespace BlazorWinFormsApp
 {
@@ -31,6 +32,11 @@ namespace BlazorWinFormsApp
             serviceCollection.AddSingleton<AppState>(_appState);
 
             serviceCollection.AddSingleton<WeatherForecastService>();
+
+            serviceCollection.AddScoped<DialogService>();
+            serviceCollection.AddScoped<NotificationService>();
+            serviceCollection.AddScoped<TooltipService>();
+            serviceCollection.AddScoped<ContextMenuService>();
 
             //serviceCollection.AddSingleton<ISqlDataAccess, SqlDataAccess>();
             //serviceCollection.AddSingleton<IDeviceData, DeviceData>();
