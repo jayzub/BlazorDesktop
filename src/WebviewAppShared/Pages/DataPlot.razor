@@ -12,12 +12,14 @@
         </div>
     </div>
 
-    <div class="row" style="margin-top:50px">
-        <div class="col-sm-3 card bg-transparent">
+    <div class="row" style="margin-top:50px;margin-left:0">
+        <div class="col-sm-8 card bg-transparent mx-4">
             <form>
                 <div class="form-group row">
                     <label class="col col-form-label font-weight-bold">Components</label>
                 </div>
+                <div class="combiner" style="display:flex;flex-direction:row">
+                <div class="col">
                 <label class="col col-form-label">W Axis DE Bearing <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
                 <label class="col col-form-label">W Axis Ballscrew <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
                 <label class="col col-form-label">W Axis Linear Rail <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
@@ -26,6 +28,8 @@
                 <label class="col col-form-label">X Axis DE Bearing</label>
                 <label class="col col-form-label">X Axis Ballscrew</label>
                 <label class="col col-form-label">X Axis Linear Rail</label>
+                </div>
+                    <div class="col">
                 <label class="col col-form-label">Y Axis DE Bearing</label>
                 <label class="col col-form-label">Y Axis Ballscrew</label>
                 <label class="col col-form-label">Y Axis Linear Rail</label>
@@ -34,23 +38,10 @@
                 <label class="col col-form-label">Z Axis Ballscrew</label>
                 <label class="col col-form-label">Z Axis Linear Rail</label>
                 <label class="col col-form-label">Z Axis ODE Bearing</label>
+                </div>
+                </div>
             </form>
         </div>
-
-
-        <div class="align-middle font-weight-bold w-75 h-75" style="padding:15rem 3px">
-         <RadzenChart class="h-75">
-                                <RadzenLineSeries Smooth="@smooth" Data="@revenue2019" LineType="LineType.Dashed" ValueProperty="Revenue" />
-                                <RadzenLegend Visible="false" />
-                                <RadzenLineSeries Smooth="@smooth" Data="@revenue2020" ValueProperty="Revenue" />
-                                <RadzenLegend Visible="false" />
-                                <!--<RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />
-                                <RadzenValueAxis Formatter="@FormatAsUSD">
-                                    <RadzenGridLines Visible="true" />
-                                </RadzenValueAxis>---->
-        </RadzenChart>
-        </div>
-
         <div class="col-sm-3 card bg-transparent">
             <form>
                 <div class="form-group row">
@@ -66,9 +57,25 @@
             </form>
         </div>
     </div>
+
+        <div class="my-5 mx-0" style="width:1000px;padding:0;">
+            <RadzenChart Style="height:350px;margin-left:-30px;color:white">
+                <RadzenLineSeries Smooth="@smooth" Data="@xAxis" LineType="LineType.Solid" ValueProperty="Frequency" CategoryProperty="Date_Time" />
+                                <RadzenLegend Visible="false" />
+                <RadzenGridLines Visible="true" />
+                <RadzenValueAxis Min="-5" Max="5" Step="2" />
+                <RadzenCategoryAxis Step="2"/>
+                               <!-- <RadzenLineSeries Smooth="@smooth" Data="@revenue2020" ValueProperty="Revenue" />
+                                <RadzenLegend Visible="false" />-->
+                                <!--<RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />
+                                <RadzenValueAxis Formatter="@FormatAsUSD">
+                                    <RadzenGridLines Visible="true" />
+                                </RadzenValueAxis>---->
+        </RadzenChart>
+        </div>
     <div class="row" style="margin-top:50px">
         <div class="col text-center">
-            <button type="button" class="btn btn-success btn-lg">Start</button>
+            <button type="button" class="btn btn-danger btn-lg p-3 my-3">Cancel</button>
         </div>
     </div>
 </div>
@@ -82,8 +89,8 @@
 
     class DataItem
     {
-        public string Date { get; set; }
-        public double Revenue { get; set; }
+        public double Frequency { get; set; }
+        public string Date_Time { get; set; }
     }
 
     string FormatAsUSD(object value)
@@ -101,18 +108,87 @@
         return string.Empty;
     }
 
-    DataItem[] revenue2019 = new DataItem[] {
+    DataItem[] xAxis = new DataItem[] {
+         new DataItem
+        {
+            Date_Time = ("08:14:10"),
+            Frequency = 2.1324
+        },
         new DataItem
         {
-
+            Date_Time = ("08:14:15"),
+            Frequency = 3.1422
         },
-    };
-
-    DataItem[] revenue2020 = new DataItem[] {
         new DataItem
         {
-
+            Date_Time = ("08:14:20"),
+            Frequency = -0.6453
         },
+        new DataItem
+        {
+            Date_Time = ("08:15:28"),
+            Frequency = -4.8564
+        },
+        new DataItem
+        {
+            Date_Time = ("08:16:30"),
+            Frequency = 0.67453
+        },
+        new DataItem
+        {
+            Date_Time = ("08:16:56"),
+            Frequency = 2.6453
+        },
+        new DataItem
+        {
+            Date_Time = ("08:17:10"),
+            Frequency = 4.0646
+        },
+        new DataItem
+        {
+            Date_Time = ("08:17:20"),
+            Frequency = -1.7674
+        },
+        new DataItem
+        {
+            Date_Time = ("08:17:45"),
+            Frequency = 2.6453
+        },
+        new DataItem
+        {
+            Date_Time = ("08:17:59"),
+            Frequency = 1.7634
+        },
+        new DataItem
+        {
+            Date_Time = ("08:18:29"),
+            Frequency = 2.6453
+        },
+        new DataItem
+        {
+            Date_Time = ("08:18:57"),
+            Frequency = 3.7463
+        },
+        new DataItem
+        {
+            Date_Time = ("08:19:09"),
+            Frequency = 2.6453
+        },
+        new DataItem
+        {
+            Date_Time = ("08:19:24"),
+            Frequency = 3.7463
+        },
+        new DataItem
+        {
+            Date_Time = ("08:19:38"),
+            Frequency = 2.6453
+        },
+        new DataItem
+        {
+            Date_Time = ("08:20:02"),
+            Frequency = 3.7463
+        }
     };
 
 }
