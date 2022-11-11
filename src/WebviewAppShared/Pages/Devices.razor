@@ -1,4 +1,5 @@
 ﻿@page "/devices"
+@using System.Globalization
 @using WebviewAppShared.Data
 @using System.Data
 
@@ -23,28 +24,30 @@ else
 {
     <div class="container">
         <div class="row">
-            <div class="col-12">
+            <div class="col-14">
                 <table class="table table-image text-white">
-                    <thead>
-                        <tr>
-                            <th scope="col">Serial Number</th>
-                            <th scope="col">Image</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Last Tested</th>
-                        </tr>
-                    </thead>
                     <tbody>
                         @foreach (var item in devices)
                         {
                             <tr>
-                                <th scope="row" class="align-middle">@item.SerialNumber</th>
+                                <td class="align-middle"><span class="font-weight-bold">S.No: </span>@item.SerialNumber</td>
                                 <td class="w-25">
-                                    <img src="_content/WebviewAppShared/@item.Image" class="img-fluid img-thumbnail border border-3 border-success" alt="@item.Image">
+                                    <img src="_content/WebviewAppShared/@item.Image" class="img-fluid img-thumbnail border border-3 border-success w-75" alt="@item.Image">
+                                    <br /><span class="font-weight-bold" style="margin-left:2.75rem;">@item.Name</span>
                                 </td>
-                                <td class="align-middle">@item.Name</td>
-                                <td class="align-middle">@item.Status</td>
-                                <td class="align-middle">@item.LastTested</td>
+                                <td class="align-middle font-weight-bold w-25 h-25">
+                                    <RadzenChart class="h-25 col-sm-12" style="margin-bottom:-2rem">
+                                        <RadzenLineSeries Smooth="@smooth" Data="@revenue2019" LineType="LineType.Dashed" ValueProperty="Revenue" />
+                                        <RadzenLegend Visible="false" />
+                                        <RadzenLineSeries Smooth="@smooth" Data="@revenue2020" ValueProperty="Revenue" />
+                                        <RadzenLegend Visible="false" />
+                                        <!--<RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />
+                                        <RadzenValueAxis Formatter="@FormatAsUSD">
+                                            <RadzenGridLines Visible="true" />
+                                        </RadzenValueAxis>---->
+                                    </RadzenChart><br /><span style="margin-left:3.5rem">Status:<span class="@StyleForStatus(item.Status)">@item.Status</span></span>
+                                </td>
+                                <td class="align-middle"><span class="font-weight-bold">Last Tested:</span>@item.LastTested</td>
                             </tr>
                         }
                     </tbody>
@@ -78,17 +81,17 @@ else
     /*
     public void CreateDB()
     {
-        dbConn.CreateDB();
-        Message = "DB Created Successfully!!";
+    dbConn.CreateDB();
+    Message = "DB Created Successfully!!";
     }
     */
 
     /*
     public void CreateTable()
     {
-        query = "CREATE TABLE Devices (SerialNumber VARCHAR(50) PRIMARY KEY, Image IMAGE, Name VARCHAR(50), Status VARCHAR(50), LastTested DATETIME default current_timestamp)";
-        dbConn.CreateTable(query);
-        Message = "Table Created Successfully!!";
+    query = "CREATE TABLE Devices (SerialNumber VARCHAR(50) PRIMARY KEY, Image IMAGE, Name VARCHAR(50), Status VARCHAR(50), LastTested DATETIME default current_timestamp)";
+    dbConn.CreateTable(query);
+    Message = "Table Created Successfully!!";
     }
     */
 
@@ -112,4 +115,60 @@ else
             devices.Add(dvc);
         }
     }
-}
+    bool smooth = false;
+    bool showDataLabels = false;
+
+    class DataItem
+    {
+        public string Date { get; set; }
+        public double Revenue { get; set; }
+    }
+
+    string FormatAsUSD(object value)
+    {
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
+    }
+
+    string FormatAsMonth(object value)
+    {
+        if (value != null)
+        {
+            return Convert.ToDateTime(value).ToString("MMM");
+        }
+
+        return string.Empty;
+    }
+
+    DataItem[] revenue2019 = new DataItem[] {
+        new DataItem
+        {
+
+        },
+    };
+
+    DataItem[] revenue2020 = new DataItem[] {
+        new DataItem
+        {
+
+        }
+    };
+    private string StyleForStatus(string a)
+    {
+        if (a == "Good")
+        {
+            return "text-success";
+        }
+        else if (a == "Service")
+        {
+            return "text-danger";
+        }
+        else if (a == "Monitor")
+        {
+            return "text-warning";
+        }
+        else
+        {
+            return " ";
+        }
+    }
+    }
