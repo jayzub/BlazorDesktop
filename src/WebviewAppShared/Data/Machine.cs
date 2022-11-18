@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebviewAppShared.Data
 {
-    public class Device
+    public class Machine
     {
         public string Name { get; set; }
         public string SerialNumber { get; set; }

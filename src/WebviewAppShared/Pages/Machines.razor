@@ -1,22 +1,18 @@
-﻿@page "/devices"
+﻿@page "/"
 @using System.Globalization
 @using WebviewAppShared.Data
 @using System.Data
 
 
-<h1>Current Devices</h1>
+<h1>Machines List</h1>
 
-<!--
-<button class="btn btn-primary" @onclick="CreateDB">Create DB</button>
-<button class="btn btn-primary" @onclick="CreateTable">Create Table</button>
-<br/>
 <span class="danger">
     @Message
 </span>
 <br/>
--->
 
-@if (devices is null)
+
+@if (machines is null)
 {
 	<p><em>Loading...</em></p>
 }
@@ -27,12 +23,12 @@ else
             <div class="col-14">
                 <table class="table table-image text-white">
                     <tbody>
-                        @foreach (var item in devices)
+                        @foreach (var item in machines)
                         {
                             <tr>
                                 <td class="align-middle"><span class="font-weight-bold">S.No: </span>@item.SerialNumber</td>
                                 <td class="w-25">
-                                    <img src="_content/WebviewAppShared/@item.Image" class="img-fluid img-thumbnail border border-3 border-success w-75" alt="@item.Image">
+                                    <img src="_content/WebviewAppShared/@item.Image" class="border border-3 p-1 @StyleForBorder(item.Status) w-75" alt="@item.Image">
                                     <br /><span class="font-weight-bold" style="margin-left:2.75rem;">@item.Name</span>
                                 </td>
                                 <td class="align-middle font-weight-bold w-25 h-25">
@@ -45,7 +41,7 @@ else
                                         <RadzenValueAxis Formatter="@FormatAsUSD">
                                             <RadzenGridLines Visible="true" />
                                         </RadzenValueAxis>---->
-                                    </RadzenChart><br /><span style="margin-left:3.5rem">Status:<span class="@StyleForStatus(item.Status)">@item.Status</span></span>
+                                    </RadzenChart><br /><span style="margin-left:3.5rem">Status: <span class="@StyleForStatus(item.Status)">@item.Status</span></span>
                                 </td>
                                 <td class="align-middle"><span class="font-weight-bold">Last Tested:</span>@item.LastTested</td>
                             </tr>
@@ -65,54 +61,35 @@ else
 
     public Database dbConn { get; set;  }
     public DataTable dataTable { get; set; }
-    public Device objDevice { get; set; }
-    public List<Device> devices { get; set; }
+    public Machine objMachine { get; set; }
+    public List<Machine> machines { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
 
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
-        objDevice = new Device();
+        objMachine = new Machine();
         GetData();
         return base.OnInitializedAsync();
     }
 
-    /*
-    public void CreateDB()
-    {
-    dbConn.CreateDB();
-    Message = "DB Created Successfully!!";
-    }
-    */
-
-    /*
-    public void CreateTable()
-    {
-    query = "CREATE TABLE Devices (SerialNumber VARCHAR(50) PRIMARY KEY, Image IMAGE, Name VARCHAR(50), Status VARCHAR(50), LastTested DATETIME default current_timestamp)";
-    dbConn.CreateTable(query);
-    Message = "Table Created Successfully!!";
-    }
-    */
-
     public void GetData()
     {
-        //query = "SELECT rowid, * FROM Devices";
-        query = "SELECT * FROM Devices";
+        query = "SELECT * FROM MachineDetails";
         dataTable = dbConn.GetData(query);
 
-        devices = new List<Device>();
+        machines = new List<Machine>();
 
         for (int i = 0; i < dataTable.Rows.Count; i++)
         {
-            Device dvc = new Device();
-            //dvc.Id = Convert.ToString(dataTable.Rows[i]["rowid"]);
-            dvc.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
-            dvc.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
-            dvc.Image = Convert.ToString(dataTable.Rows[i]["Image"]);
-            dvc.Status = Convert.ToString(dataTable.Rows[i]["Status"]);
-            dvc.LastTested = Convert.ToString(dataTable.Rows[i]["LastTested"]);
-            devices.Add(dvc);
+            Machine mch = new Machine();
+            mch.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
+            mch.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
+            mch.Image = Convert.ToString(dataTable.Rows[i]["Image"]);
+            mch.Status = Convert.ToString(dataTable.Rows[i]["Status"]);
+            mch.LastTested = Convert.ToString(dataTable.Rows[i]["LastTested"]);
+            machines.Add(mch);
         }
     }
     bool smooth = false;
@@ -171,4 +148,24 @@ else
             return " ";
         }
     }
+
+    private string StyleForBorder(string a)
+    {
+        if (a == "Good")
+        {
+            return "border-success";
+        }
+        else if (a == "Service")
+        {
+            return "border-danger";
+        }
+        else if (a == "Monitor")
+        {
+            return "border-warning";
+        }
+        else
+        {
+            return " ";
+        }
     }
+}
