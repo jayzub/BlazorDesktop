@@ -37,10 +37,6 @@ else
                                         <RadzenLegend Visible="false" />
                                         <RadzenLineSeries Smooth="@smooth" Data="@revenue2020" ValueProperty="Revenue" />
                                         <RadzenLegend Visible="false" />
-                                        <!--<RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />
-                                        <RadzenValueAxis Formatter="@FormatAsUSD">
-                                            <RadzenGridLines Visible="true" />
-                                        </RadzenValueAxis>---->
                                     </RadzenChart><br /><span style="margin-left:3.5rem">Status: <span class="@StyleForStatus(item.Status)">@item.Status</span></span>
                                 </td>
                                 <td class="align-middle"><span class="font-weight-bold">Last Tested:</span>@item.LastTested</td>
@@ -101,28 +97,12 @@ else
         public double Revenue { get; set; }
     }
 
-    string FormatAsUSD(object value)
-    {
-        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
-    }
-
-    string FormatAsMonth(object value)
-    {
-        if (value != null)
-        {
-            return Convert.ToDateTime(value).ToString("MMM");
-        }
-
-        return string.Empty;
-    }
-
     DataItem[] revenue2019 = new DataItem[] {
         new DataItem
         {
 
         },
     };
-
     DataItem[] revenue2020 = new DataItem[] {
         new DataItem
         {

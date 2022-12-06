@@ -1,5 +1,9 @@
 ﻿@page "/data_plot"
 @using System.Globalization
+@using System.Text.RegularExpressions
+@using System.Collections
+@using WebviewAppShared.Data
+@using System.Data
 <h1>Service Testing</h1>
 
 <div class="container">
@@ -58,19 +62,13 @@
         </div>
     </div>
 
-        <div class="my-5 mx-0" style="width:1000px;padding:0;">
-            <RadzenChart Style="height:350px;margin-left:-30px;color:white">
-                <RadzenLineSeries Smooth="@smooth" Data="@xAxis" LineType="LineType.Solid" ValueProperty="Frequency" CategoryProperty="Date_Time" />
-                                <RadzenLegend Visible="false" />
-                <RadzenGridLines Visible="true" />
-                <RadzenValueAxis Min="-5" Max="5" Step="2" />
-                <RadzenCategoryAxis Step="2"/>
-                               <!-- <RadzenLineSeries Smooth="@smooth" Data="@revenue2020" ValueProperty="Revenue" />
-                                <RadzenLegend Visible="false" />-->
-                                <!--<RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth" />
-                                <RadzenValueAxis Formatter="@FormatAsUSD">
-                                    <RadzenGridLines Visible="true" />
-                                </RadzenValueAxis>---->
+        <div class="my-5 mx-0" style="width:950px;padding:0;">
+            <RadzenChart Style="height:400px;margin-left:0px;color:white">
+            <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis"/> 
+            <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis"/>
+            <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis"/>  
+            <RadzenValueAxis Min="-5" Max="5" />
+            <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
         </RadzenChart>
         </div>
     <div class="row" style="margin-top:50px">
@@ -84,111 +82,51 @@
 }
 
 @code {
-    bool smooth = false;
-    bool showDataLabels = false;
+    public Database dbConn { get; set; }
+    public DataTable dataTable { get; set; }
+    public List<DataPlots> objPlotDatas { get; set; }
+    public string query { get; set; }
+    public string Message { get; set; }
 
-    class DataItem
+    protected override Task OnInitializedAsync()
     {
-        public double Frequency { get; set; }
-        public string Date_Time { get; set; }
+        dbConn = new Database();
+        GetDataPlotValue();
+        return base.OnInitializedAsync();
     }
-
-    string FormatAsUSD(object value)
+    public void GetDataPlotValue()
     {
-        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
-    }
-
-    string FormatAsMonth(object value)
-    {
-        if (value != null)
+        query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%500)=0";
+        dataTable = dbConn.GetData(query);
+        objPlotDatas = new List<DataPlots>();
+        for (int i = 0; i < dataTable.Rows.Count; i++)
         {
-            return Convert.ToDateTime(value).ToString("MMM");
+            DataPlots pD = new DataPlots();
+            pD.TimeStamp = ConvertToDateTime(dataTable.Rows[i]["TimeStamp"].ToString());
+            pD.X_Axis = Convert.ToDouble(dataTable.Rows[i]["X_Axis"].ToString());
+            pD.Y_Axis = Convert.ToDouble(dataTable.Rows[i]["Y_Axis"].ToString());
+            pD.Z_Axis=Convert.ToDouble(dataTable.Rows[i]["Z_Axis"].ToString());
+            objPlotDatas.Add(pD);
         }
-
-        return string.Empty;
     }
-
-    DataItem[] xAxis = new DataItem[] {
-         new DataItem
+    public static DateTime ConvertToDateTime(string str)
+    {
+        string pattern = @"(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d{3})";
+        if (Regex.IsMatch(str, pattern))
         {
-            Date_Time = ("08:14:10"),
-            Frequency = 2.1324
-        },
-        new DataItem
-        {
-            Date_Time = ("08:14:15"),
-            Frequency = 3.1422
-        },
-        new DataItem
-        {
-            Date_Time = ("08:14:20"),
-            Frequency = -0.6453
-        },
-        new DataItem
-        {
-            Date_Time = ("08:15:28"),
-            Frequency = -4.8564
-        },
-        new DataItem
-        {
-            Date_Time = ("08:16:30"),
-            Frequency = 0.67453
-        },
-        new DataItem
-        {
-            Date_Time = ("08:16:56"),
-            Frequency = 2.6453
-        },
-        new DataItem
-        {
-            Date_Time = ("08:17:10"),
-            Frequency = 4.0646
-        },
-        new DataItem
-        {
-            Date_Time = ("08:17:20"),
-            Frequency = -1.7674
-        },
-        new DataItem
-        {
-            Date_Time = ("08:17:45"),
-            Frequency = 2.6453
-        },
-        new DataItem
-        {
-            Date_Time = ("08:17:59"),
-            Frequency = 1.7634
-        },
-        new DataItem
-        {
-            Date_Time = ("08:18:29"),
-            Frequency = 2.6453
-        },
-        new DataItem
-        {
-            Date_Time = ("08:18:57"),
-            Frequency = 3.7463
-        },
-        new DataItem
-        {
-            Date_Time = ("08:19:09"),
-            Frequency = 2.6453
-        },
-        new DataItem
-        {
-            Date_Time = ("08:19:24"),
-            Frequency = 3.7463
-        },
-        new DataItem
-        {
-            Date_Time = ("08:19:38"),
-            Frequency = 2.6453
-        },
-        new DataItem
-        {
-            Date_Time = ("08:20:02"),
-            Frequency = 3.7463
+            Match match = Regex.Match(str, pattern);
+            int year = Convert.ToInt32(match.Groups[1].Value);
+            int month = Convert.ToInt32(match.Groups[2].Value);
+            int day = Convert.ToInt32(match.Groups[3].Value);
+            int hour = Convert.ToInt32(match.Groups[4].Value);
+            int minute = Convert.ToInt32(match.Groups[5].Value);
+            int second = Convert.ToInt32(match.Groups[6].Value);
+            int millisecond = Convert.ToInt32(match.Groups[7].Value);
+            return new DateTime(year, month, day, hour, minute, second, millisecond);
         }
-    };
-
+        else
+        {
+            throw new Exception("Unable to parse.");
+        }
+    }        
 }
