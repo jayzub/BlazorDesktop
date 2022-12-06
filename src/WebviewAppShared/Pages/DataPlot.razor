@@ -87,6 +87,12 @@
     public List<DataPlots> objPlotDatas { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
+     protected override Task OnInitializedAsync()
+    {
+        dbConn = new Database();
+        GetDataPlotValue();
+        return base.OnInitializedAsync();
+    }
     public void GetDataPlotValue()
     {
         query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%500)=0";
