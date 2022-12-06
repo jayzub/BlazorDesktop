@@ -87,9 +87,6 @@
     public List<DataPlots> objPlotDatas { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
-
-    {
-    }
     public void GetDataPlotValue()
     {
         query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%500)=0";
@@ -104,8 +101,6 @@
             pD.Z_Axis=Convert.ToDouble(dataTable.Rows[i]["Z_Axis"].ToString());
             objPlotDatas.Add(pD);
         }
-
-        return string.Empty;
     }
     public static DateTime ConvertToDateTime(string str)
     {
