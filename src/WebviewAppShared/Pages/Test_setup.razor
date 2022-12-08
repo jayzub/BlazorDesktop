@@ -21,7 +21,22 @@
 		<p></p>
     </div>
 
-    <div class="row" style="margin-top:50px">
+    @foreach (var mch in machines)
+    {
+        @if (objTest.MachineSerialNumber == mch.SerialNumber)
+        {
+            machine = mch.Name;
+        }
+    }
+
+    <div class="row">
+        <div class="col-sm-9"></div>
+        <div class="col-sm-3 card bg-transparent">
+            <h3>@machine</h3>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-sm-3 card bg-transparent">
             <form>
                 <div class="form-group row">
@@ -29,6 +44,7 @@
                     <div class="col-sm-7">
                         <input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />
                     </div>
+                    
                 </div>
                 <div class="form-group row">
                     <label for="hours" class="col-sm-5 col-form-label">Hours</label>
@@ -72,18 +88,118 @@
                         <th scope="col">Component</th>
                         <th scope="col">Task</th>
                         <th scope="col">Notes</th>
+                        <th scope="col"></th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    <tr class="table-secondary text-black-50">
-                        <td><input type="text" @bind-value="@objMaintenance.Axis" /></td>
-                        <td><input type="text" @bind-value="@objMaintenance.Component" /></td>
-                        <td><input type="text" @bind-value="@objMaintenance.Task" /></td>
-                        <td><input type="text" @bind-value="@objMaintenance.Note" /></td>
-                    </tr>
+                    @if (machine == "Intimidator")
+                    {
+                        <tr class="table-secondary text-black-50">
+                            <td>
+                                <select name="axis" id="axis" @bind="@objMaintenance.Axis">
+                                    <option value="spindle">Spindle</option>
+                                    <option value="w">W</option>
+                                    <option value="x">X</option>
+                                    <option value="y">Y</option>
+                                    <option value="z">Z</option>
+                                </select>
+                            </td>
+                            @if (objMaintenance.Axis != null)
+                            {
+                                flag = objMaintenance.Axis;
+                            }
+                            <td>
+                                @if (flag == "spindle")
+                                {
+                                    <select name="components" id="components">
+                                        <option value="DE Bearing">DE Bearing</option>
+                                        <option value="ODE Bearing">ODE Bearing</option>
+                                    </select>
+                                }
+                                else if (flag == "w" || flag == "x" || flag == "y")
+                                {
+                                    <select name="components" id="components">
+                                        <option value="Ballscrew DE Bearing">Ballscrew DE Bearing</option>
+                                        <option value="Ballscrew ODE Bearing">Ballscrew ODE Bearing</option>
+                                        <option value="Ballscrew">Ballscrew</option>
+                                        <option value="Linear Bearing">Linear Bearing</option>
+                                    </select>
+                                }
+                                else if (flag == "z")
+                                {
+                                    <select name="components" id="components">
+                                        <option value="Ballscrew DE Bearing">Ballscrew DE Bearing</option>
+                                        <option value="Ballscrew Nut">Ballscrew Nut</option>
+                                        <option value="Linear Bearing">Linear Bearing</option>
+                                    </select>
+                                }
+                            </td>
+                            <td>
+                                <select name="task" id="task">
+                                    <option value="lubricated">Lubricated</option>
+                                    <option value="replaced">Replaced</option>
+                                </select>
+                            </td>
+                            <td><input type="text" @bind-value="@objMaintenance.Note" /></td>
+                            <td><button type="button" id="btnAdd" class="btn btn-xs btn-primary classAdd">Add More</button></td>
+                        </tr>
+                    }
+                    else if (machine == "Annihilator")
+                    {
+                        <tr class="table-secondary text-black-50">
+                            <td>
+                                <select name="axis" id="axis" @bind="@objMaintenance.Axis">
+                                    <option value="spindle">Spindle</option>
+                                    <option value="x">X</option>
+                                    <option value="y">Y</option>
+                                    <option value="z">Z</option>
+                                </select>
+                            </td>
+                            @if (objMaintenance.Axis != null)
+                            {
+                                flag = objMaintenance.Axis;
+                            }
+                            <td>
+                                @if (flag == "spindle")
+                                {
+                                    <select name="components" id="components">
+                                        <option value="ODE Bearing">ODE Bearing</option>
+                                    </select>
+                                }
+                                else if (flag == "x" || flag == "y")
+                                {
+                                    <select name="components" id="components">
+                                        <option value="Ballscrew">Ballscrew</option>
+                                        <option value="Linear Bearing">Linear Bearing</option>
+                                    </select>
+                                }
+                                else if (flag == "z")
+                                {
+                                    <select name="components" id="components">
+                                        <option value="Ballscrew">Ballscrew</option>
+                                        <option value="Ballscrew DE Bearing">Ballscrew DE Bearing</option>
+                                        <option value="Linear Bearing">Linear Bearing</option>
+                                    </select>
+                                }
+                            </td>
+                            <td>
+                                <select name="task" id="task">
+                                    @if (flag != "spindle")
+                                    {
+                                        <option value="lubricated">Lubricated</option>
+                                    }
+                                    <option value="replaced">Replaced</option>
+                                </select>
+                            </td>
+                            <td><input type="text" @bind-value="@objMaintenance.Note" /></td>
+                            <td><button type="button" id="btnAdd" class="btn btn-xs btn-primary classAdd">Add More</button></td>
+                        </tr>
+                    }
                 </tbody>
             </table>
-            <button type="button" class="btn btn-secondary btn-lg">Add</button>
+            <button type="button" id="btnSubmit" class="btn btn-primary btn-md pull-right btn-sm">Submit</button>
+
         </div>
     </div>
     <button type="button" class="btn btn-secondary btn-lg" @onclick="InsertData">Next</button>
@@ -97,15 +213,26 @@
     public List<Test> tests { get; set; }
     public Maintenance objMaintenance { get; set; }
     public List<Maintenance> maintenances { get; set; }
+    public Machine objMachine { get; set; }
+    public List<Machine> machines { get; set; }
     public string query { get; set; }
     public string query2 { get; set; }
     public string Message { get; set; }
+    public string flag { get; set; }
+    public int lineCount { get; set; }
+    public string machine { get; set; }
+
+    public string flag_machineName { get; set; }
 
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
         objTest = new Test();
         objMaintenance = new Maintenance();
+        objMachine = new Machine();
+        GetData();
+        flag = "spindle";
+        lineCount = 1;
         return base.OnInitializedAsync();
     }
 
@@ -117,6 +244,22 @@
         dbConn.InsertData(query2);
         objTest = new Test();
         Message = "Data Saved!";
+    }
+
+    public void GetData()
+    {
+        query = "SELECT * FROM MachineDetails";
+        dataTable = dbConn.GetData(query);
+
+        machines = new List<Machine>();
+
+        for (int i = 0; i < dataTable.Rows.Count; i++)
+        {
+            Machine mch = new Machine();
+            mch.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
+            mch.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
+            machines.Add(mch);
+        }
     }
 
 }
