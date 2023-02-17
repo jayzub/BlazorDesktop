@@ -22,25 +22,36 @@
     <div class="row" style="margin-top:50px">
         <div class="col-sm-4 card bg-transparent">
             <form>
-                <div class="form-group row">
-                    <label class="col col-form-label font-weight-bold">Components</label>
-                </div>
-                <label class="col col-form-label">W Axis DE Bearing <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label">W Axis Ballscrew <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label">W Axis Linear Rail <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label">W Axis ODE Bearing <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label text-warning">X Axis ODE Bearing</label>
-                <label class="col col-form-label">X Axis DE Bearing</label>
-                <label class="col col-form-label">X Axis Ballscrew</label>
-                <label class="col col-form-label">X Axis Linear Rail</label>
-                <label class="col col-form-label">Y Axis DE Bearing</label>
-                <label class="col col-form-label">Y Axis Ballscrew</label>
-                <label class="col col-form-label">Y Axis Linear Rail</label>
-                <label class="col col-form-label">Y Axis ODE Bearing</label>
-                <label class="col col-form-label">Z Axis DE Bearing</label>
-                <label class="col col-form-label">Z Axis Ballscrew</label>
-                <label class="col col-form-label">Z Axis Linear Rail</label>
-                <label class="col col-form-label">Z Axis ODE Bearing</label>
+
+                @foreach (MachineComponent m in machineComponents)
+                {
+                    <label class="col col-form-label">@m.Axis @m.Component <span>@m.count of 3</span>
+                        @if (@m.count == 3)
+                        {
+                            <span class="oi oi-check" style="color: green" aria-hidden="true"></span>
+                        }    
+                    </label>
+                }
+
+
+                @*
+                <label class="col col-form-label">W Axis DE Bearing <span>(3 of 3)</span> <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
+                <label class="col col-form-label">W Axis Ballscrew <span>(3 of 3)</span><span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
+                <label class="col col-form-label">W Axis Linear Rail <span>(3 of 3)</span><span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
+                <label class="col col-form-label">W Axis ODE Bearing <span>(3 of 3)</span><span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
+                <label class="col col-form-label text-warning">X Axis ODE Bearing<span>(1 of 3)</span></label>
+                <label class="col col-form-label">X Axis DE Bearing<span>(0 of 3)</span></label>
+                <label class="col col-form-label">X Axis Ballscrew <span>(0 of 3)</span></label>
+                <label class="col col-form-label">X Axis Linear Rail <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Y Axis DE Bearing <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Y Axis Ballscrew <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Y Axis Linear Rail <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Y Axis ODE Bearing <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Z Axis DE Bearing <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Z Axis Ballscrew <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Z Axis Linear Rail <span>(0 of 3)</span></label>
+                <label class="col col-form-label">Z Axis ODE Bearing <span>(0 of 3)</span></label>
+                *@
             </form>
         </div>
 
@@ -70,10 +81,17 @@
         </div>
     </div>
 </div>
+
+
+
 @code
 {
 
     public Database dbConn { get; set; }
+    public DataTable dataTable { get; set; }
+
+
+    List<MachineComponent>  machineComponents = new List<MachineComponent>();
 
     private void onChangeSite()
     {
@@ -83,30 +101,63 @@
     protected override System.Threading.Tasks.Task OnInitializedAsync()
     {
         dbConn = new Database();
+
+        // To be updated later
+        //string query = @"select MachineComponents.Id Machine.Machine_Name, MachineComponents.Axis, MachineComponents.Component from MachineComponents , Machine where MachineComponents.Machine_Id = Machine.Id and Machine.Id = 1";
+
+        string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
+
+        //string query = "select * from MachineComponents";
+
+        dataTable = dbConn.GetData(query);
+
+
+
+        foreach (DataRow row in dataTable.Rows)
+        {
+            MachineComponent mc = new MachineComponent();
+            mc.Id = row["Id"].ToString();
+            mc.Machine_Name = row["Machine_Name"].ToString();
+            mc.Axis = row["Axis"].ToString();
+            mc.Component = row["Component"].ToString();
+            mc.count = 0;
+
+            machineComponents.Add(mc);
+        }
+
         return base.OnInitializedAsync();
     }
 
 
     private void startDataAcquisiton()
     {
-        DataTable d = acquireData("cDAQ1Mod1");
-
-        int i = 0;
-        foreach (DataRow dtRow in d.Rows)
-        {
-
-            Console.Write("Row " + i + ": ");
-            foreach (var item in dtRow.ItemArray)
+        foreach (MachineComponent m in machineComponents){
+            for (int j =1;j <=3 ; j++)
             {
-                Console.Write(item.ToString() + "  ");
+                m.count = j;
+                DataTable d = acquireData("cDAQ1Mod1");
+
+                int i = 0;
+                foreach (DataRow dtRow in d.Rows)
+                {
+
+                    Console.Write("Row " + i + ": ");
+                    foreach (var item in dtRow.ItemArray)
+                    {
+                        Console.Write(item.ToString() + "  ");
+                    }
+                    i++;
+                    Console.WriteLine();
+                }
+
+
+
+                dbConn.BulkInsert(d);
             }
-            i++;
-            Console.WriteLine();
         }
 
 
-
-        dbConn.BulkInsert(d);
+        
 
 
         /*string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=QuickMill;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
