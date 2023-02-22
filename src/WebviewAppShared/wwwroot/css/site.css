@@ -72,3 +72,8 @@ a, .btn-link {
 {
     border-color:white;
 }
+.roundedStylings{
+    display:flex;
+    flex-direction:row;
+    justify-content:space-around;
+}
