@@ -24,7 +24,7 @@
                 </div>
                 <div class="combiner" style="display:flex;flex-direction:row">
                 <div class="col">
-                        <div class="roundedStylings col col-form-label"><p>W Axis DE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
+                        <div class="roundedStylings col col-form-label"><p>W Axis DE Bearing</p><div class="roundedMargin"><button class="noStyle" @onclick="GetDataPlotValue" type="button"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
                         <div class="roundedStylings col col-form-label"><p>W Axis Ballscrew</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
                             <div class="roundedStylings col col-form-label">
                             <p>W Axis Linear Rail</p><div class="roundedMargin"><button class="noStyle ml-1"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
@@ -120,7 +120,7 @@
      protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
-        GetDataPlotValue();
+        //GetDataPlotValue();
         return base.OnInitializedAsync();
     }
     public void GetDataPlotValue()
