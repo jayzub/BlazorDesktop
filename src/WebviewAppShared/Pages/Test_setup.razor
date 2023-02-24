@@ -202,7 +202,7 @@
 
         </div>
     </div>
-    <button type="button" class="btn btn-secondary btn-lg" @onclick="InsertData">Next</button>
+    <button type="button" class="btn btn-secondary btn-lg" @onclick="RunCommand">Next</button>
 </div>
 
 @code {
@@ -236,7 +236,7 @@
         return base.OnInitializedAsync();
     }
 
-    public void InsertData()
+    public void RunCommand()
     {
         query = "INSERT INTO TestDetails(MachineSerialNumber, Hours, Operator, Mode, Sensor, Date)VALUES('" + objTest.MachineSerialNumber + "','" + objTest.Hours + "','" + objTest.Operator + "','" + objTest.Mode + "','" + objTest.Sensor + "','" + objTest.Date + "')";
         dbConn.InsertData(query);

@@ -14,10 +14,12 @@ using System.Configuration;
 using Microsoft.Extensions.Configuration;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 using Radzen;
+/*
 using NationalInstruments.DAQmx;
 using Task = NationalInstruments.DAQmx.Task;
 using System.Data;
 using System.Collections.Generic;
+*/
 
 namespace BlazorWinFormsApp
 {
@@ -93,7 +95,7 @@ namespace BlazorWinFormsApp
             cmd.ExecuteNonQuery();
             con.Close();
         }
-        
+
         
         
         // To be changed as required
@@ -143,6 +145,7 @@ namespace BlazorWinFormsApp
 
         // Code to acquire data from the sensor and return that data in form of a data table
 
+        /*
         private DataTable getData(string deviceName)
         {
             var timeStamp = new List<string>();
@@ -249,6 +252,6 @@ namespace BlazorWinFormsApp
 
 
             return dt;
-        }
+        }*/
     }
 }
