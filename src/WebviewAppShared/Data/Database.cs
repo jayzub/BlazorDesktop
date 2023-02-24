@@ -152,6 +152,57 @@ namespace WebviewAppShared.Data
                 throw ex;
             }
         }
+        
+        public void BulkInsert(DataTable dt)
+        {
+            try
+            {
+
+                
+
+
+                string connectionString = "Data Source=quickmill.db;Version=3;New=True;Compress=Trues;";
+                using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+
+                    using (SQLiteTransaction transaction = connection.BeginTransaction())
+                    {
+                        using (SQLiteCommand command = new SQLiteCommand(connection))
+                        {
+                            command.CommandText = "INSERT INTO Test (TimeStamp, X_Axis, Y_Axis, Z_Axis) VALUES (@value1, @value2, @value3, @value4)";
+
+                            command.Parameters.Add("@value1", System.Data.DbType.Decimal);
+                            command.Parameters.Add("@value2", System.Data.DbType.Decimal);
+                            command.Parameters.Add("@value3", System.Data.DbType.Decimal);
+                            command.Parameters.Add("@value4", System.Data.DbType.Decimal);
+
+                            foreach (DataRow dtRow in dt.Rows)
+                            {
+
+                                int i = 1;
+                                foreach (var item in dtRow.ItemArray)
+                                {
+                                    command.Parameters["@value" + i].Value = item;
+                                    i++;
+
+                                    
+                                }
+                                command.ExecuteNonQuery();
+                            }
+
+                           
+                            transaction.Commit();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public void UpdateData(string query)
         {
