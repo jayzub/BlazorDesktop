@@ -25,7 +25,7 @@
 
                 @foreach (MachineComponent m in machineComponents)
                 {
-                    <label class="col col-form-label">@m.Axis @m.Component <span>@m.count of 3</span>
+                    <label class="col col-form-label">@m.Axis @m.Component <span>(@m.count of 3)</span>
                         @if (@m.count == 3)
                         {
                             <span class="oi oi-check" style="color: green" aria-hidden="true"></span>
@@ -75,11 +75,41 @@
             </form>
         </div>
     </div>
-    <div class="row" style="margin-top:50px">
+    <div class="row">
         <div class="col text-center">
-            <button type="button" class="btn btn-success btn-lg" @onclick="startDataAcquisiton">Start</button>
+            @if (TestCompleted == true)
+            {
+                <span>Test Complete</span>
+            }
         </div>
     </div>
+    
+    <div class="row" style="margin-top:50px">
+        <div class="col text-center">
+
+            @if (moveSensor == false && underTest == true)
+            {
+                <button type="button" class="btn btn-success btn-lg" @onclick="loop">Acquire Data</button>
+            }
+            else if (moveSensor == true)
+            {
+                <span>Move the sensor and click the button below</span>
+                <button type="button" class="btn btn-success btn-lg" @onclick="onMoveSensor">Ready</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-success btn-lg" @onclick="startDataAcquisiton">Start</button>
+            }
+            
+
+           
+            
+        </div>
+       
+    </div>
+    
+    <span>@ind @mach.Machine_Name @mach.Axis @mach.Component @mach.count</span>
+
 </div>
 
 
@@ -89,6 +119,11 @@
 
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
+    public bool TestCompleted { get; set; }
+    public bool underTest { get; set; }
+    public bool moveSensor { get; set; }
+    public int ind = 0;
+    MachineComponent mach = new MachineComponent();
 
 
     List<MachineComponent>  machineComponents = new List<MachineComponent>();
@@ -100,6 +135,8 @@
 
     protected override System.Threading.Tasks.Task OnInitializedAsync()
     {
+        TestCompleted = false;
+        underTest = false;
         dbConn = new Database();
 
         // To be updated later
@@ -128,42 +165,76 @@
         return base.OnInitializedAsync();
     }
 
+    private void loop()
+    {
+
+        if (ind < machineComponents.Count)
+        {
+            mach = machineComponents[ind];
+            mach.count += 1;
+            DataTable d = acquireData("cDAQ1Mod1", 1, int.Parse(mach.Id), mach.count);
+            dbConn.BulkInsert(d);
+            if (mach.count == 3)
+            {
+                moveSensor = true;
+                ind++;
+            }
+
+        }
+        if (ind >= machineComponents.Count)
+        {
+            moveSensor = false;
+            underTest = false;
+            TestCompleted = true;
+        }
+
+    }
+
+    private void onMoveSensor()
+    {
+        moveSensor = false;
+    }
+
 
     private void startDataAcquisiton()
     {
-        foreach (MachineComponent m in machineComponents){
-            for (int j =1;j <=3 ; j++)
-            {
-                m.count = j;
-                DataTable d = acquireData("cDAQ1Mod1");
+        underTest = true;
 
-                int i = 0;
-                foreach (DataRow dtRow in d.Rows)
-                {
+        //foreach (MachineComponent m in machineComponents){
+        //    for (int j =1;j <=3 ; j++)
+        //    {
+        //        m.count = j;
+        //        DataTable d = acquireData("cDAQ1Mod1");
 
-                    Console.Write("Row " + i + ": ");
-                    foreach (var item in dtRow.ItemArray)
-                    {
-                        Console.Write(item.ToString() + "  ");
-                    }
-                    i++;
-                    Console.WriteLine();
-                }
+        //        int i = 0;
+        //        foreach (DataRow dtRow in d.Rows)
+        //        {
 
-
-
-                dbConn.BulkInsert(d);
-            }
-        }
+        //            Console.Write("Row " + i + ": ");
+        //            foreach (var item in dtRow.ItemArray)
+        //            {
+        //                Console.Write(item.ToString() + "  ");
+        //            }
+        //            i++;
+        //            Console.WriteLine();
+        //        }
 
 
-        
+
+        //        dbConn.BulkInsert(d);
+        //    }
+        //}
+
+        //TestCompleted = true;
+
+
+
 
 
         /*string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=QuickMill;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         using (SqlConnection connection = new SqlConnection(connectionString))
         using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
-        {
+            {
             connection.Open();
             bulkCopy.DestinationTableName = "TestTable";
 
@@ -173,13 +244,13 @@
 
         }
         Console.WriteLine("Done All End");
-        */
+    */
     }
 
 
     // Code to acquire data from the sensor and return that data in form of a data table
 
-    private DataTable acquireData(string deviceName)
+    private DataTable acquireData(string deviceName, int gTestId, int componentId, int testRound)
     {
         var timeStamp = new List<string>();
         double start;
@@ -270,6 +341,32 @@
         dtColumn.Unique = false;
         dt.Columns.Add(dtColumn);
 
+        // Create gTest ID Coulmn.
+        dtColumn = new DataColumn();
+        dtColumn.DataType = typeof(int);
+        dtColumn.ColumnName = "G_test_id";
+        dtColumn.AutoIncrement = false;
+        dtColumn.ReadOnly = false;
+        dtColumn.Unique = false;
+        dt.Columns.Add(dtColumn);
+
+        // Create Component ID Coulmn.
+        dtColumn = new DataColumn();
+        dtColumn.DataType = typeof(int);
+        dtColumn.ColumnName = "Component_id";
+        dtColumn.AutoIncrement = false;
+        dtColumn.ReadOnly = false;
+        dtColumn.Unique = false;
+        dt.Columns.Add(dtColumn);
+
+        // Create testRound ID Coulmn.
+        dtColumn = new DataColumn();
+        dtColumn.DataType = typeof(int);
+        dtColumn.ColumnName = "Test_Round";
+        dtColumn.AutoIncrement = false;
+        dtColumn.ReadOnly = false;
+        dtColumn.Unique = false;
+        dt.Columns.Add(dtColumn);
 
         // Filling the dataTable
         for (int i = 0; i < data.GetLength(1); i++)
@@ -279,6 +376,9 @@
             dtRow["X-Axis"] = data[0, i];
             dtRow["Y-Axis"] = data[1, i];
             dtRow["Z-Axis"] = data[2, i];
+            dtRow["G_test_id"] = gTestId;
+            dtRow["Component_id"] = componentId;
+            dtRow["Test_Round"] = testRound;
             dt.Rows.Add(dtRow);
         }
 
