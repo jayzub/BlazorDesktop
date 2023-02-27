@@ -14,10 +14,12 @@ using System.Configuration;
 using Microsoft.Extensions.Configuration;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 using Radzen;
+/*
 using NationalInstruments.DAQmx;
 using Task = NationalInstruments.DAQmx.Task;
 using System.Data;
 using System.Collections.Generic;
+*/
 
 namespace BlazorWinFormsApp
 {
@@ -93,7 +95,7 @@ namespace BlazorWinFormsApp
             cmd.ExecuteNonQuery();
             con.Close();
         }
-        
+
         
       
     }
