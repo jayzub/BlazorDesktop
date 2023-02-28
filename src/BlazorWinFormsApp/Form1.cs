@@ -54,13 +54,13 @@ namespace BlazorWinFormsApp
             blazorWebView1.RootComponents.Add<App>("#app");
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(
-                owner: this,
-                text: $"Current counter value is: {_appState.Counter}",
-                caption: "Counter");
-        }
+        //private void button1_Click(object sender, EventArgs e)
+        //{
+        //    MessageBox.Show(
+        //        owner: this,
+        //        text: $"Current counter value is: {_appState.Counter}",
+        //        caption: "Counter");
+        //}
 
         private void blazorWebView1_Click(object sender, EventArgs e)
         {
@@ -96,7 +96,9 @@ namespace BlazorWinFormsApp
             con.Close();
         }
 
-        
-      
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
