@@ -14,5 +14,6 @@ namespace WebviewAppShared.Data
         public double Y_Axis { get; set; }
         public double Z_Axis { get; set; }
         public int TestId { get; set; }
+        public int testCount { get; set; }
     }
 }

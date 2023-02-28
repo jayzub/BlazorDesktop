@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BlazorWinFormsApp\BlazorWinFormsApp.csproj" />
     <ProjectReference Include="..\WebviewAppShared\WebviewAppShared.csproj" />
   </ItemGroup>
 
