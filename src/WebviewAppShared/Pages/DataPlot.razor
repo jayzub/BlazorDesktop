@@ -22,10 +22,12 @@
                 <div class="form-group row">
                     <label class="col col-form-label font-weight-bold">Components</label>
                 </div>
-                <div class="combiner" style="display:flex;flex-direction:row">
-                <div class="col">
-                        <div class="roundedStylings col col-form-label"><p>W Axis DE Bearing</p><div class="roundedMargin"><button class="noStyle" @onclick="GetDataPlotValue" type="button"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
-                        <div class="roundedStylings col col-form-label"><p>W Axis Ballscrew</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
+                <div class="combiner combine_head" style="display:flex;flex-direction:row;flex-flow: row wrap;">
+                    <div class="col">
+                    @foreach(MachineComponent m in machineComponents){
+                            <div class="roundedStylings"><p>@m.Axis @m.Component</p><div class="roundedMargin"><button class="noStyle" @onclick="GetDataPlotValue" type="button"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
+                        }
+                        @*<div class="roundedStylings col col-form-label"><p>W Axis Ballscrew</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
                             <div class="roundedStylings col col-form-label">
                             <p>W Axis Linear Rail</p><div class="roundedMargin"><button class="noStyle ml-1"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
                         </div>
@@ -45,9 +47,9 @@
                         </div>
                                                 <div class="roundedStylings col col-form-label">
                             <p>X Axis Linear Rail</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
+                        </div>*@
                 </div>
-                    <div class="col">
+                    @*<div class="col">
                         <div class="roundedStylings col col-form-label">
                             <p>Y Axis DE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
                         </div>
@@ -72,7 +74,7 @@
                                                     <div class="roundedStylings col col-form-label">
                             <p>Z Axis ODE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
                         </div>
-                </div>
+                </div>*@
                 </div>
             </form>
         </div>
@@ -117,15 +119,17 @@
     public List<DataPlots> objPlotDatas { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
-     protected override Task OnInitializedAsync()
+    List<MachineComponent> machineComponents = new List<MachineComponent>();
+    protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
+        machineComponentDataFetch(dbConn);
         //GetDataPlotValue();
         return base.OnInitializedAsync();
     }
     public void GetDataPlotValue()
     {
-        query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%500)=0";
+        query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%5000)=0";
         dataTable = dbConn.GetData(query);
         objPlotDatas = new List<DataPlots>();
         for (int i = 0; i < dataTable.Rows.Count; i++)
@@ -157,6 +161,23 @@
         {
             throw new Exception("Unable to parse.");
         }
-    }        
+    } 
+    
+    public void machineComponentDataFetch(Database dbConn)
+    {
+    string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
+    dataTable = dbConn.GetData(query);
+    foreach (DataRow row in dataTable.Rows)
+    {
+        MachineComponent mc = new MachineComponent();
+    mc.Id = row["Id"].ToString();
+    mc.Machine_Name = row["Machine_Name"].ToString();
+    mc.Axis = row["Axis"].ToString();
+    mc.Component = row["Component"].ToString();
+    mc.count = 0;
+
+        machineComponents.Add(mc);
+    }
+    }
 
 }
