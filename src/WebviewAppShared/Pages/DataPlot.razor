@@ -25,56 +25,9 @@
                 <div class="combiner combine_head" style="display:flex;flex-direction:row;flex-flow: row wrap;">
                     <div class="col">
                     @foreach(MachineComponent m in machineComponents){
-                            <div class="roundedStylings"><p>@m.Axis @m.Component</p><div class="roundedMargin"><button class="noStyle" @onclick="GetDataPlotValue" type="button"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
+                            <div class="roundedStylings"><p>@m.Axis @m.Component</p><div class="roundedMargin"><button class="noStyle" @onclick="GetDataPlotValue" type="button"><span class="rounded" aria-hidden="true">@m.TestCount[0]</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">@m.TestCount[1]</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">@m.TestCount[2]</span></button></div></div>
                         }
-                        @*<div class="roundedStylings col col-form-label"><p>W Axis Ballscrew</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div></div>
-                            <div class="roundedStylings col col-form-label">
-                            <p>W Axis Linear Rail</p><div class="roundedMargin"><button class="noStyle ml-1"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                <div class="roundedStylings col col-form-label">
-                            <p>W Axis ODE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                            </div>
-                                    <div class="roundedStylings col col-form-label">
-                            <p>X Axis ODE Bearing</p><div class="roundedMargin">
-                                <button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button>
-                            </div></div>
-                                        <div class="roundedStylings col col-form-label">
-                            <p>X Axis DE Bearing</p><div class="roundedMargin">
-                                <button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button>
-                            </div></div>
-                                            <div class="roundedStylings col col-form-label">
-                            <p>X Axis Ballscrew</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                                <div class="roundedStylings col col-form-label">
-                            <p>X Axis Linear Rail</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>*@
                 </div>
-                    @*<div class="col">
-                        <div class="roundedStylings col col-form-label">
-                            <p>Y Axis DE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                            <div class="roundedStylings col col-form-label">
-                            <p>Y Axis Ballscrew</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                <div class="roundedStylings col col-form-label">
-                            <p>Y Axis Linear Rail</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                    <div class="roundedStylings col col-form-label">
-                            <p>Y Axis ODE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                        <div class="roundedStylings col col-form-label">
-                            <p>Z Axis DE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                            <div class="roundedStylings col col-form-label">
-                            <p>Z Axis Ballscrew</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                                <div class="roundedStylings col col-form-label">
-                            <p>Z Axis Linear Rail</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                                                    <div class="roundedStylings col col-form-label">
-                            <p>Z Axis ODE Bearing</p><div class="roundedMargin"><button class="noStyle"><span class="rounded" aria-hidden="true">1</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">2</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">3</span></button></div>
-                        </div>
-                </div>*@
                 </div>
             </form>
         </div>
@@ -116,6 +69,7 @@
 @code {
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
+    public DataTable testRoundData { get; set; }
     public List<DataPlots> objPlotDatas { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
@@ -162,22 +116,27 @@
             throw new Exception("Unable to parse.");
         }
     } 
-    
+
     public void machineComponentDataFetch(Database dbConn)
     {
-    string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
-    dataTable = dbConn.GetData(query);
-    foreach (DataRow row in dataTable.Rows)
-    {
-        MachineComponent mc = new MachineComponent();
-    mc.Id = row["Id"].ToString();
-    mc.Machine_Name = row["Machine_Name"].ToString();
-    mc.Axis = row["Axis"].ToString();
-    mc.Component = row["Component"].ToString();
-    mc.count = 0;
-
-        machineComponents.Add(mc);
-    }
+        string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
+        dataTable = dbConn.GetData(query);
+        foreach (DataRow row in dataTable.Rows)
+        {
+            MachineComponent mc = new MachineComponent();
+            mc.Id = row["Id"].ToString();
+            mc.Machine_Name = row["Machine_Name"].ToString();
+            mc.Axis = row["Axis"].ToString();
+            mc.Component = row["Component"].ToString();
+            string query2 = "select distinct(test_round) from test t1, machinecomponents mc where t1.component_Id = mc.Id";
+            testRoundData = dbConn.GetData(query2);
+            foreach (DataRow data in testRoundData.Rows)
+            {
+                String set = data["Test_Round"].ToString();
+                mc.TestCount.Add(set);
+            }
+            machineComponents.Add(mc);
+        }
     }
 
 }
