@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,15 @@ namespace WebviewAppShared.Data
         public string Component { get; set; }
 
         public int count { get; set; }
+        public List<string> testRoundDynamic { get; set; }
+
+        public List<string> testCount = new List<string>();
+
+        public List<string> TestCount
+        {
+            set { testCount = value; }
+            get { return testCount; }
+        }
 
     }
 }
