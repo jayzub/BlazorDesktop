@@ -15,56 +15,105 @@
     <div class="row">
         <form>
             
-            <div class="col">
-                <span style="margin-left:2.75rem;" class="text-sm-left" >Enter Machine Serial no.</span>
-                <input type="text" class="form-control" id="machine_no" placeholder="Machine Sl.No 5123" />
-            </div>
-            <div class="col">
-                @foreach (MachineComponent m in machineComponents)
-                {
-                    <div class="col">
-                        @m.Axis @m.Component
+            
+            <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Sensor Name</label>
+                    <div class="col-sm-7">
+                    <input type="text" class="form-control" id="sensor_name" placeholder="cDAQ1Mod1" @bind-value="@SensorForm.name" />
                     </div>
-                    <div class="col">
-                        <input type="text" class="form-control" id="machine_no" placeholder="cDAQ1Mod1" />
-                    </div>
-                }
+                    
+             </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Minimum Value</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" id="min" placeholder="-5" @bind-value="@SensorForm.min" />
+                </div>
 
-                
             </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Maximum Value</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" id="max" placeholder="5" @bind-value="@SensorForm.max" />
+                </div>
+
+            </div>
+            <button type="button" class="btn btn-secondary btn-lg" @onclick="RunCommand">Add Sensor</button>
         </form>
     </div>
 </div>
+<br />
+<div class="container">
+<div class="row">
+    <div class="col-12">
+        <span class="font-weight-bold" style="margin-left:2.75rem;">Machine Configuration</span>
 
+    </div>
+</div>
+<div class="row">
+    <form>
+
+
+        <div class="form-group row">
+            <label for="machine_no" class="col-sm-5 col-form-label">Machine S.NO</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="machine_serialNumber" placeholder="5123" @bind-value="@MachineForm.SerialNumber" />
+            </div>
+
+        </div>
+        <div class="form-group row">
+            <label for="machine_no" class="col-sm-5 col-form-label">Machine Name</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="machine_serialNumber" placeholder="Intimidator" @bind-value="@MachineForm.Name" />
+            </div>
+
+        </div>
+        <div class="form-group row">
+            <label for="machine_no" class="col-sm-5 col-form-label">Machine Image</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="machine_image" placeholder="intimator.jpg" @bind-value="@MachineForm.Image" />
+
+            </div>
+
+        </div>
+
+
+        <button type="button" class="btn btn-secondary btn-lg" @onclick="AddMachine">Add Machine</button>
+    </form>
+</div>
+</div>
 
 @code{
 
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
-    List<MachineComponent> machineComponents = new List<MachineComponent>();
+    public Sensor SensorForm { get; set; }
+    public string query { get; set; }
+    public string Message { get; set; }
+    public Machine MachineForm { get; set; }
 
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
-
-        string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 2";
-
-        //string query = "select * from MachineComponents";
-
-        dataTable = dbConn.GetData(query);
-
-        foreach (DataRow row in dataTable.Rows)
-        {
-            MachineComponent mc = new MachineComponent();
-            mc.Id = row["Id"].ToString();
-            mc.Machine_Name = row["Machine_Name"].ToString();
-            mc.Axis = row["Axis"].ToString();
-            mc.Component = row["Component"].ToString();
-            mc.count = 0;
-
-            machineComponents.Add(mc);
-        }
-
+        SensorForm = new Sensor();
+        MachineForm = new Machine();
         return base.OnInitializedAsync();
+    }
+
+    public void RunCommand()
+    {
+        query = "INSERT INTO SensorDetails(Name, Min, Max)VALUES('" + SensorForm.name + "','" + SensorForm.min + "','" + SensorForm.min + "')";
+        dbConn.InsertData(query);
+        SensorForm = new Sensor();
+        Message = "Data Saved!";
+    }
+
+    public void AddMachine()
+    {
+        query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + MachineForm.Image + "','" +
+            MachineForm.Name
+            + "')";
+        dbConn.InsertData(query);
+        MachineForm = new Machine();
+        Message = "Data Saved!";
     }
 }
