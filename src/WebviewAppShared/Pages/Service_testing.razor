@@ -5,7 +5,7 @@
 @using System.Data;
 @using System.Collections.Generic;
 @inject NavigationManager NavigationManager
-
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 <h1>Service Testing</h1>
 
@@ -84,7 +84,7 @@
         </div>
     </div>
     
-    <div class="row" style="margin-top:50px">
+   @* <div class="row" style="margin-top:50px">
         <div class="col text-center">
 
             @if (moveSensor == false && underTest == true)
@@ -107,11 +107,48 @@
             
         </div>
        
-    </div>
+    </div>*@
+
+    <!-- Add the loader HTML element -->
     
+    <div class="row" style="margin-top:50px">
+        <div class="col text-center">
+
+            @if (moveSensor == false && underTest == true)
+            {
+                <button style="display:inline" id="acquireDataButton" type="button" class="btn btn-success btn-lg" @onclick="@(async () => {
+                // Show the loader before calling the loop() function
+                await JSRuntime.InvokeVoidAsync("showLoader");
+                await loop();
+                // Hide the loader after the loop() function completes
+                await JSRuntime.InvokeVoidAsync("hideLoader");
+                   })">
+                    Acquire Data
+                </button>
+                <div id="loader" style="display: none;">
+                    Loading...
+                </div>
+            }
+            else if (moveSensor == true)
+            {
+                <span>Move the sensor and click the button below</span>
+                <br>
+                <button type="button" class="btn btn-success btn-lg" @onclick="onMoveSensor">Ready</button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-success btn-lg" @onclick="startDataAcquisiton">Start</button>
+            }
+
+
+        </div>
+    </div>
+
     @*<span>@ind @mach.Machine_Name @mach.Axis @mach.Component @mach.count</span>*@
 
 </div>
+
+
 
 
 
@@ -123,6 +160,7 @@
     public bool TestCompleted { get; set; }
     public bool underTest { get; set; }
     public bool moveSensor { get; set; }
+    public bool collectingData { get; set; }
     public int ind = 0;
     MachineComponent mach = new MachineComponent();
 
@@ -138,6 +176,7 @@
     {
         TestCompleted = false;
         underTest = false;
+        collectingData = false;
         dbConn = new Database();
 
         // To be updated later
@@ -166,7 +205,7 @@
         return base.OnInitializedAsync();
     }
 
-    private void loop()
+    private async System.Threading.Tasks.Task loop()
     {
 
         if (ind < machineComponents.Count)
@@ -189,6 +228,37 @@
             TestCompleted = true;
         }
 
+    }
+
+    // Define the showLoader() JavaScript function using the JSRuntime service
+    //protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        await JSRuntime.InvokeVoidAsync("eval", @"
+    //            function showLoader() {
+    //                document.getElementById('loader').style.display = 'block';
+    //            }
+    //        ");
+    //    }
+    //}
+
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+            function showLoader() { acquireDataButton
+                document.getElementById('loader').style.display = 'block';
+                document.getElementById('acquireDataButton').style.display = 'none';
+            }
+
+            function hideLoader() {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('acquireDataButton').style.display = 'inline';
+            }
+        ");
+        }
     }
 
     private void onMoveSensor()
@@ -278,6 +348,7 @@
 
         acelerometerTask1.Control(TaskAction.Verify);
         start = DateTime.Now.ToOADate();
+        collectingData = true;
         acelerometerTask1.Start();
 
         AnalogMultiChannelReader reader1 = new AnalogMultiChannelReader(acelerometerTask1.Stream);
@@ -286,6 +357,7 @@
 
         acelerometerTask1.Dispose();
         end = DateTime.Now.ToOADate();
+        collectingData = false;
 
         Console.WriteLine(DateTime.FromOADate(start).ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK"));
         Console.WriteLine(DateTime.FromOADate(end).ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK"));
