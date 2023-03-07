@@ -15,7 +15,7 @@
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
             <div class="btn btn-info"><b>DEFINE</b></div>
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">CAPTURE</a>
-            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE</a>
+            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE></a>
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">REVIEW</a>
         </div>
 		<p></p>
@@ -27,7 +27,6 @@
         {
             machine = mch.Name;
         }
- 
     }
 
     <div class="row">
@@ -43,14 +42,7 @@
                 <div class="form-group row">
                     <label for="machine_no" class="col-sm-5 col-form-label">Machine #</label>
                     <div class="col-sm-7">
-                        <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="machine_name" @bind="@objTest.MachineSerialNumber">
-                            <option value="select" selected>Select Machine </option>
-                            @foreach (var item in machines)
-                            {
-                                <option value=@item.SerialNumber>@item.SerialNumber @item.Name </option>
-                            }
-                        </select>
-                        @*<input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />*@
+                        <input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />
                     </div>
                     
                 </div>
@@ -75,14 +67,7 @@
                 <div class="form-group row">
                     <label for="sensor_no" class="col-sm-5 col-form-label">Sensor #</label>
                     <div class="col-sm-7">
-                        <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.Sensor">
-                            <option value="select" selected>Select Sensor </option>
-                            @foreach (var item in sensors)
-                            {
-                                <option value=@item.name>@item.name</option>
-                            }
-                        </select>
-                        @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
+                        <input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />
                     </div>
                 </div>
                 <div class="form-group row">
@@ -230,10 +215,8 @@
     public List<Maintenance> maintenances { get; set; }
     public Machine objMachine { get; set; }
     public List<Machine> machines { get; set; }
-    public List<Sensor> sensors { get; set; }
     public string query { get; set; }
     public string query2 { get; set; }
-    public string sensorDetailsQuery { get; set; }
     public string Message { get; set; }
     public string flag { get; set; }
     public int lineCount { get; set; }
@@ -248,7 +231,6 @@
         objMaintenance = new Maintenance();
         objMachine = new Machine();
         GetData();
-        GetSensorData();
         flag = "spindle";
         lineCount = 1;
         return base.OnInitializedAsync();
@@ -279,21 +261,5 @@
             machines.Add(mch);
         }
     }
-
-    public void GetSensorData()
-    {
-        sensorDetailsQuery = "SELECT * FROM SensorDetails";
-        dataTable = dbConn.GetData(sensorDetailsQuery);
-
-        sensors = new List<Sensor>();
-
-        for (int i = 0; i < dataTable.Rows.Count; i++)
-        {
-            Sensor snsr = new Sensor();
-            snsr.name = Convert.ToString(dataTable.Rows[i]["Name"]);
-            sensors.Add(snsr);
-        }
-    }
-    
 
 }
