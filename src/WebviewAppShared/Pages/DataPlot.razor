@@ -1,4 +1,5 @@
-﻿@page "/data_plot"
+@page "/data_plot"
+@page "/data_plot/{TestID:int}"
 @using System.Globalization
 @using System.Text.RegularExpressions
 @using System.Collections
@@ -7,10 +8,11 @@
 <h1>Service Testing</h1>
 
 <div class="container">
+    
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">DEFINE</a>
-            <div class="btn btn-info"><b>CAPTURE</b></div>
+            <div class="btn btn-info"><b>CAPTURE </b></div>
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE</a>
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">REVIEW</a>
         </div>
@@ -22,26 +24,11 @@
                 <div class="form-group row">
                     <label class="col col-form-label font-weight-bold">Components</label>
                 </div>
-                <div class="combiner" style="display:flex;flex-direction:row">
-                <div class="col">
-                <label class="col col-form-label">W Axis DE Bearing <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label">W Axis Ballscrew <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label">W Axis Linear Rail <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label">W Axis ODE Bearing <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
-                <label class="col col-form-label text-warning">X Axis ODE Bearing</label>
-                <label class="col col-form-label">X Axis DE Bearing</label>
-                <label class="col col-form-label">X Axis Ballscrew</label>
-                <label class="col col-form-label">X Axis Linear Rail</label>
-                </div>
+                <div class="combiner combine_head" style="display:flex;flex-direction:row;flex-flow: row wrap;">
                     <div class="col">
-                <label class="col col-form-label">Y Axis DE Bearing</label>
-                <label class="col col-form-label">Y Axis Ballscrew</label>
-                <label class="col col-form-label">Y Axis Linear Rail</label>
-                <label class="col col-form-label">Y Axis ODE Bearing</label>
-                <label class="col col-form-label">Z Axis DE Bearing</label>
-                <label class="col col-form-label">Z Axis Ballscrew</label>
-                <label class="col col-form-label">Z Axis Linear Rail</label>
-                <label class="col col-form-label">Z Axis ODE Bearing</label>
+                    @foreach(MachineComponent m in machineComponents){
+                            <div class="roundedStylings"><p>@m.Axis @m.Component</p><div class="roundedMargin"><button class="noStyle" @onclick="GetDataPlotValue" type="button"><span class="rounded" aria-hidden="true">@m.TestCount[0]</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">@m.TestCount[1]</span></button><button class="noStyle"><span class="rounded" aria-hidden="true">@m.TestCount[2]</span></button></div></div>
+                        }
                 </div>
                 </div>
             </form>
@@ -82,20 +69,27 @@
 }
 
 @code {
+    [Parameter]
+    public int TestID { get; set; }
+
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
+    public DataTable testRoundData { get; set; }
     public List<DataPlots> objPlotDatas { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
-     protected override Task OnInitializedAsync()
+    List<MachineComponent> machineComponents = new List<MachineComponent>();
+    protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
-        GetDataPlotValue();
+        machineComponentDataFetch(dbConn);
+        //GetDataPlotValue();
+        
         return base.OnInitializedAsync();
     }
     public void GetDataPlotValue()
     {
-        query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%500)=0";
+        query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%5000)=0";
         dataTable = dbConn.GetData(query);
         objPlotDatas = new List<DataPlots>();
         for (int i = 0; i < dataTable.Rows.Count; i++)
@@ -127,6 +121,28 @@
         {
             throw new Exception("Unable to parse.");
         }
-    }        
+    } 
+
+    public void machineComponentDataFetch(Database dbConn)
+    {
+        string query = "select m3.Id, m2.Machine_Name, m3.Axis, m3.Component from MachineDetails m1,TestDetails t1, Machine m2, MachineComponents m3  where m1.SerialNumber=t1.MachineSerialNumber and m1.name=m2.Machine_Name and m3.Machine_Id=m2.Id and t1.TestId =" + TestID;
+        dataTable = dbConn.GetData(query);
+        foreach (DataRow row in dataTable.Rows)
+        {
+            MachineComponent mc = new MachineComponent();
+            mc.Id = row["Id"].ToString();
+            mc.Machine_Name = row["Machine_Name"].ToString();
+            mc.Axis = row["Axis"].ToString();
+            mc.Component = row["Component"].ToString();
+            string query2 = "select distinct(test_round) from test t1, machinecomponents mc where t1.component_Id = mc.Id";
+            testRoundData = dbConn.GetData(query2);
+            foreach (DataRow data in testRoundData.Rows)
+            {
+                String set = data["Test_Round"].ToString();
+                mc.TestCount.Add(set);
+            }
+            machineComponents.Add(mc);
+        }
+    }
 
 }
