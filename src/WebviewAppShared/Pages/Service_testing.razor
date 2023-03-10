@@ -1,10 +1,11 @@
 @page "/service_testing"
+@page "/service_testing/{TestID:int}"
 @using WebviewAppShared.Data
 @using NationalInstruments.DAQmx;
 
 @using System.Data;
 @using System.Collections.Generic;
-@inject NavigationManager NavigationManager
+@inject NavigationManager navigationManager
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 <h1>Service Testing</h1>
@@ -21,6 +22,7 @@
 
     <div class="row" style="margin-top:50px">
         <div class="col-sm-4 card bg-transparent">
+        
             <form>
 
                 @foreach (MachineComponent m in machineComponents)
@@ -113,33 +115,40 @@
     
     <div class="row" style="margin-top:50px">
         <div class="col text-center">
-
-            @if (moveSensor == false && underTest == true)
+            @if (TestCompleted == true)
             {
-                <button style="display:inline" id="acquireDataButton" type="button" class="btn btn-success btn-lg" @onclick="@(async () => {
-                // Show the loader before calling the loop() function
-                await JSRuntime.InvokeVoidAsync("showLoader");
-                await loop();
-                // Hide the loader after the loop() function completes
-                await JSRuntime.InvokeVoidAsync("hideLoader");
-                   })">
-                    Acquire Data
-                </button>
-                <div id="loader" style="display: none;">
-                    Loading...
-                </div>
-            }
-            else if (moveSensor == true)
-            {
-                <span>Move the sensor and click the button below</span>
-                <br>
-                <button type="button" class="btn btn-success btn-lg" @onclick="onMoveSensor">Ready</button>
+                <button type="button" class="btn btn-success btn-lg" @onclick="viewData">View Collected Data</button>
             }
             else
             {
-                <button type="button" class="btn btn-success btn-lg" @onclick="startDataAcquisiton">Start</button>
+                
+            
+                @if (moveSensor == false && underTest == true)
+                {
+                    <button style="display:inline" id="acquireDataButton" type="button" class="btn btn-success btn-lg" @onclick="@(async () => {
+                    // Show the loader before calling the loop() function
+                    await JSRuntime.InvokeVoidAsync("showLoader");
+                    await loop();
+                    // Hide the loader after the loop() function completes
+                    await JSRuntime.InvokeVoidAsync("hideLoader");
+                       })">
+                        Acquire Data
+                    </button>
+                    <div id="loader" style="display: none;">
+                        Loading...
+                    </div>
+                }
+                else if (moveSensor == true)
+                {
+                    <span>Move the sensor and click the button below</span>
+                    <br>
+                    <button type="button" class="btn btn-success btn-lg" @onclick="onMoveSensor">Ready</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-success btn-lg" @onclick="startDataAcquisiton">Start</button>
+                }
             }
-
 
         </div>
     </div>
@@ -154,6 +163,8 @@
 
 @code
 {
+    [Parameter]
+    public int TestID { get; set; }
 
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
@@ -167,10 +178,7 @@
 
     List<MachineComponent>  machineComponents = new List<MachineComponent>();
 
-    private void onChangeSite()
-    {
-        NavigationManager.NavigateTo("/data_plot");
-    }
+    
 
     protected override System.Threading.Tasks.Task OnInitializedAsync()
     {
@@ -182,8 +190,10 @@
         // To be updated later
         //string query = @"select MachineComponents.Id Machine.Machine_Name, MachineComponents.Axis, MachineComponents.Component from MachineComponents , Machine where MachineComponents.Machine_Id = Machine.Id and Machine.Id = 1";
 
-        string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
+        //string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
 
+        // Updated query with testID passed from previous component.
+        string query = "select m3.Id, m2.Machine_Name, m3.Axis, m3.Component from MachineDetails m1,TestDetails t1, Machine m2, MachineComponents m3  where m1.SerialNumber=t1.MachineSerialNumber and m1.name=m2.Machine_Name and m3.Machine_Id=m2.Id and t1.TestId =" + TestID;
         //string query = "select * from MachineComponents";
 
         dataTable = dbConn.GetData(query);
@@ -212,7 +222,7 @@
         {
             mach = machineComponents[ind];
             mach.count += 1;
-            DataTable d = acquireData("cDAQ1Mod1", 1, int.Parse(mach.Id), mach.count);
+            DataTable d = acquireData("cDAQ1Mod1", TestID , int.Parse(mach.Id), mach.count);
             dbConn.BulkInsert(d);
             if (mach.count == 3)
             {
@@ -259,6 +269,12 @@
             }
         ");
         }
+    }
+
+    private void viewData()
+    {
+        navigationManager
+            .NavigateTo($"/data_plot/{TestID}");
     }
 
     private void onMoveSensor()
