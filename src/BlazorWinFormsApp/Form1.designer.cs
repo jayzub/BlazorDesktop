@@ -94,7 +94,7 @@ namespace BlazorWinFormsApp
             this.Controls.Add(this.blazorWebView1);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
-            this.Text = "Blazor Web in Windows Forms";
+            this.Text = "QuickMill v0.0.1";
             this.ResumeLayout(false);
 
         }

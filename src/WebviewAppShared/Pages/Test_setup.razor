@@ -1,8 +1,9 @@
 ﻿@page "/test_setup"
 @using WebviewAppShared.Data
 @using System.Data
+@inject NavigationManager navigationManager
 
-<h1>Test Setup</h1> 
+<h1>Test Setup</h1>
 
 <span class="danger">
     @Message
@@ -18,7 +19,7 @@
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE</a>
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">REVIEW</a>
         </div>
-		<p></p>
+        <p></p>
     </div>
 
     @foreach (var mch in machines)
@@ -27,7 +28,7 @@
         {
             machine = mch.Name;
         }
- 
+
     }
 
     <div class="row">
@@ -52,7 +53,7 @@
                         </select>
                         @*<input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />*@
                     </div>
-                    
+
                 </div>
                 <div class="form-group row">
                     <label for="hours" class="col-sm-5 col-form-label">Hours</label>
@@ -85,12 +86,12 @@
                         @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label for="date" class="col-sm-5 col-form-label">Date</label>
-                    <div class="col-sm-7">
-                        <input type="date" class="form-control" id="date" @bind-value="@objTest.Date" />
-                    </div>
+                @*<div class="form-group row">
+                <label for="date" class="col-sm-5 col-form-label">Date</label>
+                <div class="col-sm-7">
+                <input type="date" class="form-control" id="date" @bind-value="@objTest.Date" />
                 </div>
+                </div>*@
             </form>
         </div>
 
@@ -208,16 +209,17 @@
                                 </select>
                             </td>
                             <td><input type="text" @bind-value="@objMaintenance.Note" /></td>
+
                             <td><button type="button" id="btnAdd" class="btn btn-xs btn-primary classAdd">Add More</button></td>
                         </tr>
                     }
                 </tbody>
             </table>
-            <button type="button" id="btnSubmit" class="btn btn-primary btn-md pull-right btn-sm">Submit</button>
+            <button type="button" id="btnSubmit" class="btn btn-primary btn-md pull-right btn-sm" @onclick="RunCommand">Submit</button>
 
         </div>
     </div>
-    <button type="button" class="btn btn-secondary btn-lg" @onclick="RunCommand">Next</button>
+    @*<button type="button" class="btn btn-secondary btn-lg" @onclick="RunCommand">Next</button>*@
 </div>
 
 @code {
@@ -233,11 +235,14 @@
     public List<Sensor> sensors { get; set; }
     public string query { get; set; }
     public string query2 { get; set; }
+    public string query3 { get; set; }
     public string sensorDetailsQuery { get; set; }
     public string Message { get; set; }
     public string flag { get; set; }
     public int lineCount { get; set; }
     public string machine { get; set; }
+    public Test newTestDetail { get; set; }
+
 
     public string flag_machineName { get; set; }
 
@@ -247,21 +252,32 @@
         objTest = new Test();
         objMaintenance = new Maintenance();
         objMachine = new Machine();
+        newTestDetail = new Test();
         GetData();
         GetSensorData();
         flag = "spindle";
         lineCount = 1;
+
         return base.OnInitializedAsync();
     }
 
     public void RunCommand()
     {
-        query = "INSERT INTO TestDetails(MachineSerialNumber, Hours, Operator, Mode, Sensor, Date)VALUES('" + objTest.MachineSerialNumber + "','" + objTest.Hours + "','" + objTest.Operator + "','" + objTest.Mode + "','" + objTest.Sensor + "','" + objTest.Date + "')";
+
+        DateTime datetime = DateTime.Now;
+
+        query = "INSERT INTO TestDetails(MachineSerialNumber, Hours, Operator, Mode, Sensor, Date)VALUES('" + objTest.MachineSerialNumber + "','" + objTest.Hours + "','" + objTest.Operator + "','" + objTest.Mode + "','" + objTest.Sensor + "','" + datetime + "')";
         dbConn.InsertData(query);
         query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
         dbConn.InsertData(query2);
-        objTest = new Test();
-        Message = "Data Saved!";
+        query3 = "SELECT * FROM TestDetails ORDER BY TestId DESC LIMIT 1";
+        dataTable = dbConn.GetData(query3);
+        newTestDetail.TestId = Convert.ToInt32(dataTable.Rows[0]["TestId"]);
+
+        navigationManager
+            .NavigateTo($"/service_testing/{newTestDetail.TestId}");
+
+        Message = "Data Saved! " + newTestDetail.TestId;
     }
 
     public void GetData()
@@ -294,6 +310,6 @@
             sensors.Add(snsr);
         }
     }
-    
+
 
 }
