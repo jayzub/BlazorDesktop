@@ -273,9 +273,10 @@
         query3 = "SELECT * FROM TestDetails ORDER BY TestId DESC LIMIT 1";
         dataTable = dbConn.GetData(query3);
         newTestDetail.TestId = Convert.ToInt32(dataTable.Rows[0]["TestId"]);
+        newTestDetail.Sensor = Convert.ToString(dataTable.Rows[0]["Sensor"]);
 
         navigationManager
-            .NavigateTo($"/service_testing/{newTestDetail.TestId}");
+            .NavigateTo($"/service_testing/{newTestDetail.TestId}/{newTestDetail.Sensor}");
 
         Message = "Data Saved! " + newTestDetail.TestId;
     }
