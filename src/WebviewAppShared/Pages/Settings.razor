@@ -122,10 +122,13 @@
 
     public void AddMachine()
     {
-        fileName = returnImageName(MachineForm.Image);
-        query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
-            MachineForm.Name
-            + "')";
+        //fileName = returnImageName(MachineForm.Image);
+        //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
+        //    MachineForm.Name
+        //    + "')";
+        query = "INSERT INTO MachineDetails(SerialNumber, Name)VALUES('" + MachineForm.SerialNumber + "','" +
+        MachineForm.Name
+        + "')";
         dbConn.InsertData(query);
         MachineForm = new Machine();
         Message = "Data Saved!";
