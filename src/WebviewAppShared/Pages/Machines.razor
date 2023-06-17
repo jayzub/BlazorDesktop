@@ -26,10 +26,10 @@ else
                         @foreach (var item in machines)
                         {
                             <tr>
-                                <td class="align-middle"><span class="font-weight-bold">S.No: </span>@item.SerialNumber</td>
+                                <td class="align-middle"><span class="font-weight-bold">S.No: </span>@item.M1</td>
                                 <td class="w-25">
-                                    <img src="_content/WebviewAppShared/@item.Image" class="border border-3 p-1 @StyleForBorder(item.Status) w-75" alt="@item.Image">
-                                    <br /><span class="font-weight-bold" style="margin-left:2.75rem;">@item.Name</span>
+                                    <img src="_content/WebviewAppShared/@item.M2" class="border border-3 p-1 @StyleForBorder(item.M4) w-75" alt="@item.M2">
+                                    <br /><span class="font-weight-bold" style="margin-left:2.75rem;">@item.M3</span>
                                 </td>
                                 <td class="align-middle font-weight-bold w-25 h-25">
                                     <RadzenChart class="h-25 col-sm-12" style="margin-bottom:-2rem">
@@ -41,9 +41,9 @@ else
                                         <RadzenValueAxis Formatter="@FormatAsUSD">
                                             <RadzenGridLines Visible="true" />
                                         </RadzenValueAxis>---->
-                                    </RadzenChart><br /><span style="margin-left:3.5rem">Status: <span class="@StyleForStatus(item.Status)">@item.Status</span></span>
+                                    </RadzenChart><br /><span style="margin-left:3.5rem">Status: <span class="@StyleForStatus(item.M4)">@item.M4</span></span>
                                 </td>
-                                <td class="align-middle"><span class="font-weight-bold">Last Tested:</span>@item.LastTested</td>
+                                <td class="align-middle"><span class="font-weight-bold">Last Tested:</span>@item.M5</td>
                             </tr>
                         }
                     </tbody>
@@ -61,34 +61,53 @@ else
 
     public Database dbConn { get; set;  }
     public DataTable dataTable { get; set; }
-    public Machine objMachine { get; set; }
-    public List<Machine> machines { get; set; }
+    public M objMachine { get; set; }
+    //public List<Machine> machines { get; set; }
+    public List<M> machines { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
 
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
-        objMachine = new Machine();
+        objMachine = new M();
         GetData();
         return base.OnInitializedAsync();
     }
 
+    //public void GetData()
+    //{
+    //    query = "SELECT * FROM MachineDetails";
+    //    dataTable = dbConn.GetData(query);
+
+    //    machines = new List<Machine>();
+
+    //    for (int i = 0; i < dataTable.Rows.Count; i++)
+    //    {
+    //        Machine mch = new Machine();
+    //        mch.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
+    //        mch.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
+    //        mch.Image = Convert.ToString(dataTable.Rows[i]["Image"]);
+    //        mch.Status = Convert.ToString(dataTable.Rows[i]["Status"]);
+    //        mch.LastTested = Convert.ToString(dataTable.Rows[i]["LastTested"]);
+    //        machines.Add(mch);
+    //    }
+    //}
     public void GetData()
     {
-        query = "SELECT * FROM MachineDetails";
+        query = "SELECT * FROM M";
         dataTable = dbConn.GetData(query);
 
-        machines = new List<Machine>();
+        machines = new List<M>();
 
         for (int i = 0; i < dataTable.Rows.Count; i++)
         {
-            Machine mch = new Machine();
-            mch.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
-            mch.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
-            mch.Image = Convert.ToString(dataTable.Rows[i]["Image"]);
-            mch.Status = Convert.ToString(dataTable.Rows[i]["Status"]);
-            mch.LastTested = Convert.ToString(dataTable.Rows[i]["LastTested"]);
+            M mch = new M();
+            mch.M1 = Convert.ToString(dataTable.Rows[i]["M1"]);
+            mch.M2 = Convert.ToString(dataTable.Rows[i]["M2"]);
+            mch.M3 = Convert.ToString(dataTable.Rows[i]["M3"]);
+            mch.M4 = Convert.ToString(dataTable.Rows[i]["M4"]);
+            mch.M5 = Convert.ToString(dataTable.Rows[i]["M5"]);
             machines.Add(mch);
         }
     }

@@ -19,30 +19,66 @@
             <div class="form-group row">
                     <label for="machine_no" class="col-sm-5 col-form-label">Sensor Name</label>
                     <div class="col-sm-7">
-                    <input type="text" class="form-control" id="sensor_name" placeholder="cDAQ1Mod1" @bind-value="@SensorForm.name" />
+                    <input type="text" class="form-control" id="sensor_name" placeholder="cDAQ1Mod1" @bind-value="@SensorForm.S2" />
                     </div>
                     
              </div>
             <div class="form-group row">
-                <label for="machine_no" class="col-sm-5 col-form-label">Minimum Value</label>
+                <label for="machine_no" class="col-sm-5 col-form-label">DAQ Model</label>
                 <div class="col-sm-7">
-                    <input type="text" class="form-control" id="min" placeholder="-5" @bind-value="@SensorForm.min" />
+                    <input type="text" class="form-control" placeholder="-5" @bind-value="@SensorForm.S3" />
                 </div>
 
             </div>
             <div class="form-group row">
-                <label for="machine_no" class="col-sm-5 col-form-label">Maximum Value</label>
+                <label for="machine_no" class="col-sm-5 col-form-label">DAQ SerialNumber</label>
                 <div class="col-sm-7">
-                    <input type="text" class="form-control" id="max" placeholder="5" @bind-value="@SensorForm.max" />
+                    <input type="text" class="form-control"  placeholder="5" @bind-value="@SensorForm.S4" />
                 </div>
 
             </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Accelerometer</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control"  placeholder="5" @bind-value="@SensorForm.S5" />
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Accel X Sensitivity</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control"  placeholder="5" @bind-value="@SensorForm.S6" />
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Accel Y Sensitivity</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control"  placeholder="5" @bind-value="@SensorForm.S7" />
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Accel Z Sensitivity</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control"  placeholder="5" @bind-value="@SensorForm.S8" />
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Sampling Frequency</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control"  placeholder="5" @bind-value="@SensorForm.S9" />
+                </div>
+
+            </div>
+
             <button type="button" class="btn btn-secondary btn-lg" @onclick="RunCommand">Add Sensor</button>
         </form>
     </div>
 </div>
 <br />
-<div class="container">
+@*<div class="container">
 <div class="row">
     <div class="col-12">
         <span class="font-weight-bold" style="margin-left:2.75rem;">Machine Configuration</span>
@@ -73,7 +109,7 @@
                 </div>
 
         </div>
-        <div class="form-group row">
+        <div class="form-group row">*@
             @*<label for="machine_no" class="col-sm-5 col-form-label">Machine Image</label>*@
             @*<div class="col-sm-7">*@
                     @*<input type="file" id="myFile" name="file" accept="image/*" @bind-value="@MachineForm.Image" />*@
@@ -81,19 +117,19 @@
 
             @*</div>*@
 
-        </div>
+        @*</div>
 
 
         <button type="button" class="btn btn-secondary btn-lg" @onclick="AddMachine">Add Machine</button>
     </form>
 </div>
-</div>
+</div>*@
 
 @code{
 
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
-    public Sensor SensorForm { get; set; }
+    public S SensorForm { get; set; }
     public string query { get; set; }
     public string Message { get; set; }
     public string fileName { get; set; }
@@ -104,9 +140,9 @@
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
-        SensorForm = new Sensor();
+        SensorForm = new S();
         MachineForm = new Machine();
-        GetData();
+        //GetData();
         //Object for Machines Model
         MachineModel = new MachineModel();
         return base.OnInitializedAsync();
@@ -114,41 +150,41 @@
 
     public void RunCommand()
     {
-        query = "INSERT INTO SensorDetails(Name, Min, Max)VALUES('" + SensorForm.name + "','" + SensorForm.min + "','" + SensorForm.max + "')";
+        query = "INSERT INTO S(S2, S3,S4,S5,S6,S7,S8,S9)VALUES('" + SensorForm.S2 + "','" + SensorForm.S3 + "','" + SensorForm.S4 + "','" + SensorForm.S5 + "','" + SensorForm.S6 + "','" + SensorForm.S7 + "','" + SensorForm.S8 + "','" + SensorForm.S9 + "')";
         dbConn.InsertData(query);
-        SensorForm = new Sensor();
+        SensorForm = new S();
         Message = "Data Saved!";
     }
 
-    public void AddMachine()
-    {
-        //fileName = returnImageName(MachineForm.Image);
-        //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
-        //    MachineForm.Name
-        //    + "')";
-        query = "INSERT INTO MachineDetails(SerialNumber, Name)VALUES('" + MachineForm.SerialNumber + "','" +
-        MachineForm.Name
-        + "')";
-        dbConn.InsertData(query);
-        MachineForm = new Machine();
-        Message = "Data Saved!";
-    }
-    public void GetData()
-    {
-        query = "SELECT * FROM Machine";
-        dataTable = dbConn.GetData(query);
+    //public void AddMachine()
+    //{
+    //    //fileName = returnImageName(MachineForm.Image);
+    //    //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
+    //    //    MachineForm.Name
+    //    //    + "')";
+    //    query = "INSERT INTO MachineDetails(SerialNumber, Name)VALUES('" + MachineForm.SerialNumber + "','" +
+    //    MachineForm.Name
+    //    + "')";
+    //    dbConn.InsertData(query);
+    //    MachineForm = new Machine();
+    //    Message = "Data Saved!";
+    //}
+    //public void GetData()
+    //{
+    //    query = "SELECT * FROM Machine";
+    //    dataTable = dbConn.GetData(query);
 
-        machines = new List<MachineModel>();
+    //    machines = new List<MachineModel>();
 
-        for (int i = 0; i < dataTable.Rows.Count; i++)
-        {
-            MachineModel mch = new MachineModel();
-            mch.Id = Convert.ToInt32(dataTable.Rows[i]["Id"]);
-            mch.Machine_Name = Convert.ToString(dataTable.Rows[i]["Machine_Name"]);
-            machines.Add(mch);
-        }
+    //    for (int i = 0; i < dataTable.Rows.Count; i++)
+    //    {
+    //        MachineModel mch = new MachineModel();
+    //        mch.Id = Convert.ToInt32(dataTable.Rows[i]["Id"]);
+    //        mch.Machine_Name = Convert.ToString(dataTable.Rows[i]["Machine_Name"]);
+    //        machines.Add(mch);
+    //    }
 
-    }
+    //}
 
     public String returnImageName(String imagePath)
     {
