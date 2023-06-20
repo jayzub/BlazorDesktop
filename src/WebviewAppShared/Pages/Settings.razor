@@ -78,13 +78,14 @@
     </div>
 </div>
 <br />
-@*<div class="container">
-<div class="row">
-    <div class="col-12">
-        <span class="font-weight-bold" style="margin-left:2.75rem;">Machine Configuration</span>
 
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <span class="font-weight-bold" style="margin-left:2.75rem;">Machine Configuration</span>
+
+        </div>
     </div>
-</div>
 <div class="row">
     <form>
 
@@ -92,14 +93,14 @@
         <div class="form-group row">
             <label for="machine_no" class="col-sm-5 col-form-label">Machine S.NO</label>
             <div class="col-sm-7">
-                <input type="text" class="form-control" id="machine_serialNumber" placeholder="5123" @bind-value="@MachineForm.SerialNumber" />
+                <input type="text" class="form-control" id="machine_serialNumber" placeholder="5123" @bind-value="@MachineForm.M1" />
             </div>
 
         </div>
         <div class="form-group row">
             <label for="machine_no" class="col-sm-5 col-form-label">Machine Name</label>
                 <div class="col-sm-7">
-                    <select class="form-select rounded-lg" style="width: 150px;height:30px;" asp-for="machine_name" @bind="@MachineForm.Name">
+                    <select class="form-select rounded-lg" style="width: 150px;height:30px;" asp-for="machine_name" @bind="@MachineForm.M2">
                         <option value="select" selected>-- Select --</option>
                         @foreach (var item in machines)
                         {
@@ -109,21 +110,26 @@
                 </div>
 
         </div>
-        <div class="form-group row">*@
-            @*<label for="machine_no" class="col-sm-5 col-form-label">Machine Image</label>*@
-            @*<div class="col-sm-7">*@
-                    @*<input type="file" id="myFile" name="file" accept="image/*" @bind-value="@MachineForm.Image" />*@
-                @*<input type="text" class="form-control" id="machine_image" placeholder="intimator.jpg" @bind-value="@MachineForm.Image" />*@
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Machine Hours</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" id="machine_serialNumber" placeholder="23345" @bind-value="@MachineForm.M3" />
+                </div>
 
-            @*</div>*@
+            </div>
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Machine Status</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" id="machine_serialNumber" placeholder="Good" @bind-value="@MachineForm.M4" />
+                </div>
 
-        @*</div>
+            </div>
 
 
         <button type="button" class="btn btn-secondary btn-lg" @onclick="AddMachine">Add Machine</button>
     </form>
 </div>
-</div>*@
+</div>
 
 @code{
 
@@ -133,18 +139,20 @@
     public string query { get; set; }
     public string Message { get; set; }
     public string fileName { get; set; }
-    public Machine MachineForm { get; set; }
-    public MachineModel MachineModel { get; set; }
+    public M MachineForm { get; set; }
+    //public MachineModel MachineModel { get; set; }
     public List<MachineModel> machines { get; set; }
 
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
         SensorForm = new S();
-        MachineForm = new Machine();
-        //GetData();
+        MachineForm = new M();
+
+
+        GetMachineType();
         //Object for Machines Model
-        MachineModel = new MachineModel();
+        //MachineModel = new MachineModel();
         return base.OnInitializedAsync();
     }
 
@@ -156,35 +164,54 @@
         Message = "Data Saved!";
     }
 
-    //public void AddMachine()
-    //{
-    //    //fileName = returnImageName(MachineForm.Image);
-    //    //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
-    //    //    MachineForm.Name
-    //    //    + "')";
-    //    query = "INSERT INTO MachineDetails(SerialNumber, Name)VALUES('" + MachineForm.SerialNumber + "','" +
-    //    MachineForm.Name
-    //    + "')";
-    //    dbConn.InsertData(query);
-    //    MachineForm = new Machine();
-    //    Message = "Data Saved!";
-    //}
-    //public void GetData()
-    //{
-    //    query = "SELECT * FROM Machine";
-    //    dataTable = dbConn.GetData(query);
+    public void AddMachine()
+    {
+        //fileName = returnImageName(MachineForm.Image);
+        //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
+        //    MachineForm.Name
+        //    + "')";
+        query = "INSERT INTO M(M1,M2, M3, M4)VALUES('" + MachineForm.M1 + "','" +
+        MachineForm.M2 + "','" +
+        MachineForm.M3 + "','" +
+        MachineForm.M4 
 
-    //    machines = new List<MachineModel>();
+        + "')";
+        dbConn.InsertData(query);
+        MachineForm = new M();
+        Message = "Data Saved!";
+    }
+    public void GetMachineType()
+    {
+        //query = "SELECT * FROM Machine";
+        //dataTable = dbConn.GetData(query);
 
-    //    for (int i = 0; i < dataTable.Rows.Count; i++)
-    //    {
-    //        MachineModel mch = new MachineModel();
-    //        mch.Id = Convert.ToInt32(dataTable.Rows[i]["Id"]);
-    //        mch.Machine_Name = Convert.ToString(dataTable.Rows[i]["Machine_Name"]);
-    //        machines.Add(mch);
-    //    }
+        machines = new List<MachineModel>();
 
-    //}
+        MachineModel mch = new MachineModel();
+        MachineModel mch2 = new MachineModel();
+        MachineModel mch3 = new MachineModel();
+
+        mch.Id = 1;
+        mch.Machine_Name = "annihilator";
+        machines.Add(mch);
+
+        mch2.Id = 2;
+        mch2.Machine_Name = "intimidator";
+        machines.Add(mch2);
+
+        mch3.Id = 3;
+        mch3.Machine_Name = "eleminator";
+        machines.Add(mch3);
+
+        //for (int i = 0; i < dataTable.Rows.Count; i++)
+        //{
+        //    MachineModel mch = new MachineModel();
+        //    mch.Id = Convert.ToInt32(dataTable.Rows[i]["Id"]);
+        //    mch.Machine_Name = Convert.ToString(dataTable.Rows[i]["Machine_Name"]);
+        //    machines.Add(mch);
+        //}
+
+    }
 
     public String returnImageName(String imagePath)
     {
