@@ -44,6 +44,7 @@ namespace WebviewAppShared.Data
                     CreateTableMC(sqlite_conn);
                     CreateTableS(sqlite_conn);
                     CreateTableM(sqlite_conn);
+                    CreateTableTD(sqlite_conn);
 
                 }      
             }
@@ -169,6 +170,25 @@ namespace WebviewAppShared.Data
                                                 MC2 INTEGER,
                                                 MC3 VARCHAR,
                                                 MC4 VARCHAR);";
+
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private void CreateTableTD(SQLiteConnection connection)
+        {
+            string query = @"CREATE TABLE IF NOT EXISTS TD (
+                                                TD1 INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                TD2 VARCHAR,
+                                                TD3 VARCHAR,
+                                                TD4 VARCHAR,
+                                                TD5 VARCHAR,
+                                                TD6 VARCHAR,
+                                                TD7 VARCHAR,
+                                                TD8 VARCHAR);";
 
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
