@@ -24,9 +24,9 @@
 
     @foreach (var mch in machines)
     {
-        @if (objTest.MachineSerialNumber == mch.SerialNumber)
+        @if (objTest.MachineSerialNumber == mch.M1)
         {
-            machine = mch.Name;
+            machine = mch.M2;
         }
 
     }
@@ -48,7 +48,7 @@
                             <option value="select" selected>Select Machine </option>
                             @foreach (var item in machines)
                             {
-                                <option value=@item.SerialNumber>@item.SerialNumber @item.Name </option>
+                                <option value=@item.M1>@item.M1 @item.M2 </option>
                             }
                         </select>
                         @*<input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />*@
@@ -80,7 +80,7 @@
                             <option value="select" selected>Select Sensor </option>
                             @foreach (var item in sensors)
                             {
-                                <option value=@item.name>@item.name</option>
+                                <option value=@item.S2>@item.S2</option>
                             }
                         </select>
                         @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
@@ -231,8 +231,8 @@
     public Maintenance objMaintenance { get; set; }
     public List<Maintenance> maintenances { get; set; }
     public Machine objMachine { get; set; }
-    public List<Machine> machines { get; set; }
-    public List<Sensor> sensors { get; set; }
+    public List<M> machines { get; set; }
+    public List<S> sensors { get; set; }
     public string query { get; set; }
     public string query2 { get; set; }
     public string query3 { get; set; }
@@ -249,7 +249,6 @@
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
-        objTest = new Test();
         objMaintenance = new Maintenance();
         objMachine = new Machine();
         newTestDetail = new Test();
@@ -283,31 +282,31 @@
 
     public void GetData()
     {
-        query = "SELECT * FROM MachineDetails";
+        query = "SELECT * FROM M";
         dataTable = dbConn.GetData(query);
 
-        machines = new List<Machine>();
+        machines = new List<M>();
 
         for (int i = 0; i < dataTable.Rows.Count; i++)
         {
-            Machine mch = new Machine();
-            mch.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
-            mch.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
+            M mch = new M();
+            mch.M1 = Convert.ToString(dataTable.Rows[i]["M1"]);
+            mch.M2 = Convert.ToString(dataTable.Rows[i]["M2"]);
             machines.Add(mch);
         }
     }
 
     public void GetSensorData()
     {
-        sensorDetailsQuery = "SELECT * FROM SensorDetails";
+        sensorDetailsQuery = "SELECT * FROM S";
         dataTable = dbConn.GetData(sensorDetailsQuery);
 
-        sensors = new List<Sensor>();
+        sensors = new List<S>();
 
         for (int i = 0; i < dataTable.Rows.Count; i++)
         {
-            Sensor snsr = new Sensor();
-            snsr.name = Convert.ToString(dataTable.Rows[i]["Name"]);
+            S snsr = new S();
+            snsr.S2 = Convert.ToString(dataTable.Rows[i]["S2"]);
             sensors.Add(snsr);
         }
     }

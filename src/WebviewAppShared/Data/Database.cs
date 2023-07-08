@@ -44,6 +44,7 @@ namespace WebviewAppShared.Data
                     CreateTableMC(sqlite_conn);
                     CreateTableS(sqlite_conn);
                     CreateTableM(sqlite_conn);
+                    CreateTableTD(sqlite_conn);
 
                 }      
             }
@@ -212,6 +213,26 @@ namespace WebviewAppShared.Data
             }
         }
 
+
+        private void CreateTableTD(SQLiteConnection connection)
+        {
+            string query = @"CREATE TABLE IF NOT EXISTS TD (
+                                                TD1 INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                TD2 VARCHAR,
+                                                TD3 VARCHAR,
+                                                TD4 VARCHAR,
+                                                TD5 VARCHAR,
+                                                TD6 VARCHAR,
+                                                TD7 VARCHAR,
+                                                TD8 VARCHAR);";
+
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                command.ExecuteNonQuery();
+            }
+        }
+
         public void CreateTable(string query)
         {
             try
@@ -250,6 +271,30 @@ namespace WebviewAppShared.Data
                 throw ex;
             }
         }
+
+        public int GetCount(string query)
+        {
+            try
+            {
+                SQLiteConnection conn = CreateConnection();
+                SQLiteCommand sqlite_cmd;
+                sqlite_cmd = conn.CreateCommand();
+                sqlite_cmd.CommandText = query;
+
+                int count = Convert.ToInt32(sqlite_cmd.ExecuteScalar());
+                //SQLiteDataAdapter da = new SQLiteDataAdapter(sqlite_cmd);
+                //da.Fill(dataTable);
+                //conn.Close();
+
+                return count;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
         public void BulkInsert(DataTable dt)
         {
