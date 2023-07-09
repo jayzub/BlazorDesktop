@@ -24,9 +24,9 @@
 
     @foreach (var mch in machines)
     {
-        @if (objTest.MachineSerialNumber == mch.SerialNumber)
+        @if (objTest.TD2 == mch.M1)
         {
-            machine = mch.Name;
+            machine = mch.M2;
         }
 
     }
@@ -44,11 +44,11 @@
                 <div class="form-group row">
                     <label for="machine_no" class="col-sm-5 col-form-label">Machine #</label>
                     <div class="col-sm-7">
-                        <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="machine_name" @bind="@objTest.MachineSerialNumber">
+                        <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="machine_name" @bind="@objTest.TD2">
                             <option value="select" selected>Select Machine </option>
                             @foreach (var item in machines)
                             {
-                                <option value=@item.SerialNumber>@item.SerialNumber @item.Name </option>
+                                <option value=@item.M1>@item.M1 @item.M2 </option>
                             }
                         </select>
                         @*<input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />*@
@@ -58,29 +58,29 @@
                 <div class="form-group row">
                     <label for="hours" class="col-sm-5 col-form-label">Hours</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="hours" @bind-value="@objTest.Hours" />
+                        <input type="text" class="form-control" id="hours" @bind-value="@objTest.TD3" />
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="operator" class="col-sm-5 col-form-label">Operator</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="operator" @bind-value="@objTest.Operator" />
+                        <input type="text" class="form-control" id="operator" @bind-value="@objTest.TD4" />
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="mode" class="col-sm-5 col-form-label">Mode</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="mode" @bind-value="@objTest.Mode" />
+                        <input type="text" class="form-control" id="mode" @bind-value="@objTest.TD5" />
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="sensor_no" class="col-sm-5 col-form-label">Sensor #</label>
                     <div class="col-sm-7">
-                        <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.Sensor">
+                        <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.TD6">
                             <option value="select" selected>Select Sensor </option>
                             @foreach (var item in sensors)
                             {
-                                <option value=@item.name>@item.name</option>
+                                <option value=@item.S2>@item.S2</option>
                             }
                         </select>
                         @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
@@ -226,13 +226,13 @@
 
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
-    public Test objTest { get; set; }
+    public TD objTest { get; set; }
     public List<Test> tests { get; set; }
     public Maintenance objMaintenance { get; set; }
     public List<Maintenance> maintenances { get; set; }
     public Machine objMachine { get; set; }
-    public List<Machine> machines { get; set; }
-    public List<Sensor> sensors { get; set; }
+    public List<M> machines { get; set; }
+    public List<S> sensors { get; set; }
     public string query { get; set; }
     public string query2 { get; set; }
     public string query3 { get; set; }
@@ -241,18 +241,18 @@
     public string flag { get; set; }
     public int lineCount { get; set; }
     public string machine { get; set; }
-    public Test newTestDetail { get; set; }
+    public TD newTestDetail { get; set; }
 
 
     public string flag_machineName { get; set; }
 
     protected override Task OnInitializedAsync()
     {
+        objTest = new TD();
         dbConn = new Database();
-        objTest = new Test();
         objMaintenance = new Maintenance();
         objMachine = new Machine();
-        newTestDetail = new Test();
+        newTestDetail = new TD();
         GetData();
         GetSensorData();
         flag = "spindle";
@@ -266,48 +266,51 @@
 
         DateTime datetime = DateTime.Now;
 
-        query = "INSERT INTO TestDetails(MachineSerialNumber, Hours, Operator, Mode, Sensor, Date)VALUES('" + objTest.MachineSerialNumber + "','" + objTest.Hours + "','" + objTest.Operator + "','" + objTest.Mode + "','" + objTest.Sensor + "','" + datetime + "')";
+        query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
         dbConn.InsertData(query);
-        query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
-        dbConn.InsertData(query2);
-        query3 = "SELECT * FROM TestDetails ORDER BY TestId DESC LIMIT 1";
+
+        // Event data table to be added in place of Maintenance
+
+        //query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
+        //dbConn.InsertData(query2);
+        query3 = "SELECT * FROM TD ORDER BY TD1 DESC LIMIT 1";
         dataTable = dbConn.GetData(query3);
-        newTestDetail.TestId = Convert.ToInt32(dataTable.Rows[0]["TestId"]);
-        newTestDetail.Sensor = Convert.ToString(dataTable.Rows[0]["Sensor"]);
+        newTestDetail.TD1 = Convert.ToInt32(dataTable.Rows[0]["TD1"]);
+        newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
 
         navigationManager
-            .NavigateTo($"/service_testing/{newTestDetail.TestId}/{newTestDetail.Sensor}");
+            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}");
 
-        Message = "Data Saved! " + newTestDetail.TestId;
+        Message = "Data Saved! " + newTestDetail.TD1;
     }
 
     public void GetData()
     {
-        query = "SELECT * FROM MachineDetails";
+        query = "SELECT * FROM M";
         dataTable = dbConn.GetData(query);
 
-        machines = new List<Machine>();
+        machines = new List<M>();
 
         for (int i = 0; i < dataTable.Rows.Count; i++)
         {
-            Machine mch = new Machine();
-            mch.SerialNumber = Convert.ToString(dataTable.Rows[i]["SerialNumber"]);
-            mch.Name = Convert.ToString(dataTable.Rows[i]["Name"]);
+            M mch = new M();
+            mch.M1 = Convert.ToString(dataTable.Rows[i]["M1"]);
+            mch.M2 = Convert.ToString(dataTable.Rows[i]["M2"]);
             machines.Add(mch);
         }
     }
 
     public void GetSensorData()
     {
-        sensorDetailsQuery = "SELECT * FROM SensorDetails";
+        sensorDetailsQuery = "SELECT * FROM S";
         dataTable = dbConn.GetData(sensorDetailsQuery);
 
-        sensors = new List<Sensor>();
+        sensors = new List<S>();
 
         for (int i = 0; i < dataTable.Rows.Count; i++)
         {
-            Sensor snsr = new Sensor();
-            snsr.name = Convert.ToString(dataTable.Rows[i]["Name"]);
+            S snsr = new S();
+            snsr.S2 = Convert.ToString(dataTable.Rows[i]["S2"]);
             sensors.Add(snsr);
         }
     }

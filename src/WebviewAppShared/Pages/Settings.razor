@@ -110,7 +110,7 @@
                 </div>
 
         </div>
-            <div class="form-group row">
+           @* <div class="form-group row">
                 <label for="machine_no" class="col-sm-5 col-form-label">Machine Hours</label>
                 <div class="col-sm-7">
                     <input type="text" class="form-control" id="machine_serialNumber" placeholder="23345" @bind-value="@MachineForm.M3" />
@@ -123,12 +123,14 @@
                     <input type="text" class="form-control" id="machine_serialNumber" placeholder="Good" @bind-value="@MachineForm.M4" />
                 </div>
 
-            </div>
+            </div>*@
 
 
         <button type="button" class="btn btn-secondary btn-lg" @onclick="AddMachine">Add Machine</button>
     </form>
+    
 </div>
+    <h2>@Message</h2>
 </div>
 
 @code{
@@ -137,6 +139,7 @@
     public DataTable dataTable { get; set; }
     public S SensorForm { get; set; }
     public string query { get; set; }
+    public string query_2 { get; set; }
     public string Message { get; set; }
     public string fileName { get; set; }
     public M MachineForm { get; set; }
@@ -170,15 +173,24 @@
         //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
         //    MachineForm.Name
         //    + "')";
-        query = "INSERT INTO M(M1,M2, M3, M4)VALUES('" + MachineForm.M1 + "','" +
-        MachineForm.M2 + "','" +
-        MachineForm.M3 + "','" +
-        MachineForm.M4 
 
-        + "')";
-        dbConn.InsertData(query);
-        MachineForm = new M();
-        Message = "Data Saved!";
+        query_2 = $"SELECT count(*) from M where M1 = {MachineForm.M1}";
+        var count = dbConn.GetCount(query_2);
+        if (count == 0)
+        {
+            query = "INSERT INTO M(M1,M2)VALUES('" + MachineForm.M1 + "','" +
+            MachineForm.M2
+
+            + "')";
+            dbConn.InsertData(query);
+            MachineForm = new M();
+            Message = "Data Saved!";
+        }else
+        {
+            Message = "Already Exists!";
+        }
+
+
     }
     public void GetMachineType()
     {
@@ -192,15 +204,15 @@
         MachineModel mch3 = new MachineModel();
 
         mch.Id = 1;
-        mch.Machine_Name = "annihilator";
+        mch.Machine_Name = "Annihilator";
         machines.Add(mch);
 
         mch2.Id = 2;
-        mch2.Machine_Name = "intimidator";
+        mch2.Machine_Name = "Intimidator";
         machines.Add(mch2);
 
         mch3.Id = 3;
-        mch3.Machine_Name = "eleminator";
+        mch3.Machine_Name = "Eleminator";
         machines.Add(mch3);
 
         //for (int i = 0; i < dataTable.Rows.Count; i++)
