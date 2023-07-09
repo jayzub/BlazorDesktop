@@ -69,7 +69,7 @@ namespace WebviewAppShared.Data
         //}
         private void CreateTableA(SQLiteConnection connection)
         {
-            string query = "CREATE TABLE IF NOT EXISTS A(A0 INTEGER,A1 INTEGER,A2 TEXT,A3 TEXT);";
+            string query = "CREATE TABLE IF NOT EXISTS A(A0 INTEGER,A1 INTEGER PRIMARY KEY AUTOINCREMENT,A2 TEXT,A3 TEXT);";
             
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
@@ -186,9 +186,9 @@ namespace WebviewAppShared.Data
                                                 S3 TEXT,
                                                 S4 INTEGER,
                                                 S5 INTEGER,
-                                                S6 INTEGER,
-                                                S7 INTEGER,
-                                                S8 INTEGER,
+                                                S6 NUMERIC,
+                                                S7 NUMERIC,
+                                                S8 NUMERIC,
                                                 S9 INTEGER);";
 
 

@@ -13,9 +13,9 @@ namespace WebviewAppShared.Data
         public string B3 { get; set; }
         public int B4 { get; set; }
         public string B5 { get; set; }
-        public int B6 { get; set; }
-        public int B7 { get; set; }
-        public int B8 { get; set; }
+        public double B6 { get; set; }
+        public double B7 { get; set; }
+        public double B8 { get; set; }
         public int B9 { get; set; }
         public int B10 { get; set; }
         public string B11 { get; set; }

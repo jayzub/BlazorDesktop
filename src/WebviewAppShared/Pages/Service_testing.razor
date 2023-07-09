@@ -10,6 +10,7 @@
 
 <h1>Service Testing</h1>
 <p>@Sensor</p>
+<p>@test</p>
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -165,7 +166,7 @@
     public int TestID { get; set; }
     [Parameter]
     public String Sensor { get; set; }
-
+    public String test{ get; set; }
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
     public bool TestCompleted { get; set; }
@@ -177,6 +178,8 @@
 
 
     List<MC> machineComponents = new List<MC>();
+    List<B> featureData = new List<B>();
+
 
 
 
@@ -232,9 +235,9 @@
             //DateTime datetime = DateTime.Date;
             //string fileName = @$"QUICKMILL\{dateOnly}-{mach.MC2}-{mach.M1}\{dateOnly}-{mach.MC3}-{mach.MC4}.csv";
             string folderPath = "QUICKMILL";
-            string subFolderPath = $"{datetime.ToShortDateString().ToString()}-{mach.M2}-{mach.M1}/{datetime.ToShortDateString().ToString()}-{mach.MC3}-{mach.MC4}-{mach.count}";
-            string filePath = Path.Combine(folderPath, subFolderPath, "data.csv");
-            
+            string subFolderPath = $"{datetime.ToShortDateString().ToString()}-{mach.M2}-{mach.M1}-{TestID}";
+            string filePath = Path.Combine(folderPath, subFolderPath, $"{datetime.ToShortDateString().ToString()}-{mach.MC3}-{mach.MC4}-{mach.count}.csv");
+
 
 
             // Check if the folder exists
@@ -250,6 +253,48 @@
             }
             //string filePath = @"QUICKMILL/data_table.csv";
             DataTableToCsv(d, filePath);
+            string query = "INSERT INTO A(A0, A2)VALUES('"+ TestID + "','" + filePath + "')";          
+            dbConn.InsertData(query);
+            string query1 = @"select A.A1,S.S3,S.S4,S.S5,S.S6,S.S7,S.S8,M.M1,M.M3,TD.TD3,MC.MC3,MC.MC4,S.S9,TD.TD4 
+                              from A,S,M,MC,TD where MC.MC2=M.M2 and TD.TD6=S.S2 and TD.TD2=M.M1 and TD.TD1='" + TestID + "'order by A1 desc limit 1;";
+            dataTable = dbConn.GetData(query1);
+            foreach (DataRow row in dataTable.Rows)
+            {
+                //MC mc = new MC();
+                //TD td = new TD();
+                //S s=new S();
+                //M m=new M();
+                //A a = new A();
+                //DateTime datetime = DateTime.Now.Date;
+                B b = new B();
+                b.B1 = Convert.ToInt32(row["A1"]);
+                b.B2 = datetime.ToShortDateString().ToString();
+                b.B3 = row["S3"].ToString();
+                b.B4 = Convert.ToInt32(row["S4"]);
+                b.B5 = row["S5"].ToString();
+                b.B6 = Convert.ToDouble(row["S6"]);
+                b.B7 = Convert.ToDouble(row["S7"]);
+                test = row["S6"].ToString();
+                b.B8 = Convert.ToDouble(row["S8"]);
+                b.B9 = Convert.ToInt32(row["M1"]);
+                b.B10 = Convert.ToInt32(row["TD3"]);
+                b.B11 = row["MC3"].ToString();
+                b.B12 = row["MC4"].ToString();
+                b.B19 = row["TD4"].ToString();
+                b.B21 = Convert.ToInt32(row["S9"]); 
+                string query2 = "INSERT INTO B(B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B19,B21)VALUES('" + b.B1 + "','" + b.B2 + "','" + b.B3 + "','" + b.B4 + "','" + b.B5 + "','" + b.B6 + "','" + b.B7 + "','" + b.B8 + "','" + b.B9 + "','" + b.B10 + "','" + b.B11 + "','" + b.B12 + "','" + b.B19 + "','" + b.B21 + "')";
+                dbConn.InsertData(query2);
+
+                //mc.MC1 = row["MC1"].ToString();
+                //mc.MC2 = row["MC2"].ToString();
+                //mc.MC3 = row["MC3"].ToString();
+                //mc.MC4 = row["MC4"].ToString();
+                //mc.M1 = row["M1"].ToString();
+                //mc.M2 = row["M2"].ToString();
+                //mc.count = 0;
+
+                //machineComponents.Add(mc);
+            }
             if (mach.count == 3)
             {
                 moveSensor = true;
