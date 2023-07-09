@@ -19,7 +19,6 @@
             <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">REVIEW</a>
         </div>
     </div>
-
     <div class="row" style="margin-top:50px">
         <div class="col-sm-4 card bg-transparent">
 
@@ -194,7 +193,7 @@
         //string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
 
         // Updated query with testID passed from previous component.
-        string query = "select mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
+        string query = "select m.M1,m.M2,mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
         //string query = "select * from MachineComponents";
 
         dataTable = dbConn.GetData(query);
@@ -208,6 +207,8 @@
             mc.MC2 = row["MC2"].ToString();
             mc.MC3 = row["MC3"].ToString();
             mc.MC4 = row["MC4"].ToString();
+            mc.M1 = row["M1"].ToString();
+            mc.M2 = row["M2"].ToString();
             mc.count = 0;
 
             machineComponents.Add(mc);
@@ -226,7 +227,28 @@
             DataTable d = acquireData(Sensor, TestID, int.Parse(mach.MC1), mach.count);
             // To do- insert in excel
             //dbConn.BulkInsert(d);
-            string filePath = "data_table.csv";
+            DateTime datetime = DateTime.Now.Date;
+            //DateTime dateOnly = datetime.Date;
+            //DateTime datetime = DateTime.Date;
+            //string fileName = @$"QUICKMILL\{dateOnly}-{mach.MC2}-{mach.M1}\{dateOnly}-{mach.MC3}-{mach.MC4}.csv";
+            string folderPath = "QUICKMILL";
+            string subFolderPath = $"{datetime.ToShortDateString().ToString()}-{mach.M2}-{mach.M1}/{datetime.ToShortDateString().ToString()}-{mach.MC3}-{mach.MC4}-{mach.count}";
+            string filePath = Path.Combine(folderPath, subFolderPath, "data.csv");
+            
+
+
+            // Check if the folder exists
+            if (!Directory.Exists(folderPath))
+            {
+                // Create the folder if it doesn't exist
+                Directory.CreateDirectory(folderPath);
+            }
+            if (!Directory.Exists(Path.Combine(folderPath, subFolderPath)))
+            {
+                // Create the subfolder if it doesn't exist
+                Directory.CreateDirectory(Path.Combine(folderPath, subFolderPath));
+            }
+            //string filePath = @"QUICKMILL/data_table.csv";
             DataTableToCsv(d, filePath);
             if (mach.count == 3)
             {
@@ -346,7 +368,7 @@
         DataTable dt = new DataTable();
 
         // Define Parameters
-        int rate = 500;
+        int rate = 50;
         int _samplesPerChannel = 10;
         int bufferSize = rate * _samplesPerChannel;
 
@@ -429,32 +451,32 @@
         dtColumn.Unique = false;
         dt.Columns.Add(dtColumn);
 
-        // Create gTest ID Coulmn.
-        dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(int);
-        dtColumn.ColumnName = "G_test_id";
-        dtColumn.AutoIncrement = false;
-        dtColumn.ReadOnly = false;
-        dtColumn.Unique = false;
-        dt.Columns.Add(dtColumn);
+        //// Create gTest ID Coulmn.
+        //dtColumn = new DataColumn();
+        //dtColumn.DataType = typeof(int);
+        //dtColumn.ColumnName = "G_test_id";
+        //dtColumn.AutoIncrement = false;
+        //dtColumn.ReadOnly = false;
+        //dtColumn.Unique = false;
+        //dt.Columns.Add(dtColumn);
 
-        // Create Component ID Coulmn.
-        dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(int);
-        dtColumn.ColumnName = "Component_id";
-        dtColumn.AutoIncrement = false;
-        dtColumn.ReadOnly = false;
-        dtColumn.Unique = false;
-        dt.Columns.Add(dtColumn);
+        //// Create Component ID Coulmn.
+        //dtColumn = new DataColumn();
+        //dtColumn.DataType = typeof(int);
+        //dtColumn.ColumnName = "Component_id";
+        //dtColumn.AutoIncrement = false;
+        //dtColumn.ReadOnly = false;
+        //dtColumn.Unique = false;
+        //dt.Columns.Add(dtColumn);
 
-        // Create testRound ID Coulmn.
-        dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(int);
-        dtColumn.ColumnName = "Test_Round";
-        dtColumn.AutoIncrement = false;
-        dtColumn.ReadOnly = false;
-        dtColumn.Unique = false;
-        dt.Columns.Add(dtColumn);
+        //// Create testRound ID Coulmn.
+        //dtColumn = new DataColumn();
+        //dtColumn.DataType = typeof(int);
+        //dtColumn.ColumnName = "Test_Round";
+        //dtColumn.AutoIncrement = false;
+        //dtColumn.ReadOnly = false;
+        //dtColumn.Unique = false;
+        //dt.Columns.Add(dtColumn);
 
         // Filling the dataTable
         for (int i = 0; i < data.GetLength(1); i++)
@@ -464,9 +486,9 @@
             dtRow["X-Axis"] = data[0, i];
             dtRow["Y-Axis"] = data[1, i];
             dtRow["Z-Axis"] = data[2, i];
-            dtRow["G_test_id"] = gTestId;
-            dtRow["Component_id"] = componentId;
-            dtRow["Test_Round"] = testRound;
+            //dtRow["G_test_id"] = gTestId;
+            //dtRow["Component_id"] = componentId;
+            //dtRow["Test_Round"] = testRound;
             dt.Rows.Add(dtRow);
         }
 

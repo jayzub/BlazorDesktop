@@ -15,5 +15,9 @@ namespace WebviewAppShared.Data
 
         // used to count
         public int count { get; set; }
+        //Serial Number
+        public string M1 { get; set; }
+        public string M2 { get; set; }
+
     }
 }
