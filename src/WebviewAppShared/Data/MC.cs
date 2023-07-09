@@ -8,9 +8,12 @@ namespace WebviewAppShared.Data
 {
     public class MC
     {
-        public int MC1 { get; set; }
-        public int MC2 { get; set; }
+        public string MC1 { get; set; }
+        public string MC2 { get; set; }
         public string MC3 { get; set; }
         public string MC4 { get; set; }
+
+        // used to count
+        public int count { get; set; }
     }
 }

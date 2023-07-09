@@ -2,14 +2,14 @@
 @page "/service_testing/{TestID:int}/{Sensor}"
 @using WebviewAppShared.Data
 @using NationalInstruments.DAQmx;
-
+@using System.IO;
 @using System.Data;
 @using System.Collections.Generic;
 @inject NavigationManager navigationManager
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 <h1>Service Testing</h1>
-
+<p>@Sensor</p>
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -25,10 +25,10 @@
 
             <form>
 
-                @foreach (MachineComponent m in machineComponents)
+                @foreach (MC m in machineComponents)
                 {
                     <label class="col col-form-label">
-                        @m.Axis @m.Component <span>(@m.count of 3)</span>
+                        @m.MC3 @m.MC4 <span>(@m.count of 3)</span>
                         @if (@m.count == 3)
                         {
                             <span class="oi oi-check" style="color: green" aria-hidden="true"></span>
@@ -174,10 +174,10 @@
     public bool moveSensor { get; set; }
     public bool collectingData { get; set; }
     public int ind = 0;
-    MachineComponent mach = new MachineComponent();
+    MC mach = new MC();
 
 
-    List<MachineComponent> machineComponents = new List<MachineComponent>();
+    List<MC> machineComponents = new List<MC>();
 
 
 
@@ -194,7 +194,7 @@
         //string query = "select m1.Id, m.Machine_Name, M1.Axis, M1.Component from MachineComponents m1, machine m where m1.Machine_Id = m.Id and m.Id = 1";
 
         // Updated query with testID passed from previous component.
-        string query = "select m3.Id, m2.Machine_Name, m3.Axis, m3.Component from MachineDetails m1,TestDetails t1, Machine m2, MachineComponents m3  where m1.SerialNumber=t1.MachineSerialNumber and m1.name=m2.Machine_Name and m3.Machine_Id=m2.Id and t1.TestId =" + TestID;
+        string query = "select mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
         //string query = "select * from MachineComponents";
 
         dataTable = dbConn.GetData(query);
@@ -203,11 +203,11 @@
 
         foreach (DataRow row in dataTable.Rows)
         {
-            MachineComponent mc = new MachineComponent();
-            mc.Id = row["Id"].ToString();
-            mc.Machine_Name = row["Machine_Name"].ToString();
-            mc.Axis = row["Axis"].ToString();
-            mc.Component = row["Component"].ToString();
+            MC mc = new MC();
+            mc.MC1 = row["MC1"].ToString();
+            mc.MC2 = row["MC2"].ToString();
+            mc.MC3 = row["MC3"].ToString();
+            mc.MC4 = row["MC4"].ToString();
             mc.count = 0;
 
             machineComponents.Add(mc);
@@ -223,8 +223,11 @@
         {
             mach = machineComponents[ind];
             mach.count += 1;
-            DataTable d = acquireData(Sensor, TestID, int.Parse(mach.Id), mach.count);
-            dbConn.BulkInsert(d);
+            DataTable d = acquireData(Sensor, TestID, int.Parse(mach.MC1), mach.count);
+            // To do- insert in excel
+            //dbConn.BulkInsert(d);
+            string filePath = "data_table.csv";
+            DataTableToCsv(d, filePath);
             if (mach.count == 3)
             {
                 moveSensor = true;
@@ -471,4 +474,33 @@
 
         return dt;
     }
+
+    private void DataTableToCsv(DataTable dataTable, string filePath)
+    {
+        // Create the CSV file and write the headers
+        using (StreamWriter writer = new StreamWriter(filePath))
+        {
+            for (int i = 0; i < dataTable.Columns.Count; i++)
+            {
+                writer.Write(dataTable.Columns[i]);
+                if (i < dataTable.Columns.Count - 1)
+                    writer.Write(",");
+            }
+            writer.WriteLine();
+
+            // Write the data rows
+            foreach (DataRow row in dataTable.Rows)
+            {
+                for (int i = 0; i < dataTable.Columns.Count; i++)
+                {
+                    writer.Write(row[i]);
+                    if (i < dataTable.Columns.Count - 1)
+                        writer.Write(",");
+                }
+                writer.WriteLine();
+            }
+        }
+    }
+
+
 }
