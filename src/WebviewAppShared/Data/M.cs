@@ -13,5 +13,6 @@ namespace WebviewAppShared.Data
         public string M3 { get; set; }
         public string M4 { get; set; }
         public string M5 { get; set; }
+        public string M6 { get; set; }
     }
 }
