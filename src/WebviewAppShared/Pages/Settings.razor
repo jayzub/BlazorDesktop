@@ -1,7 +1,40 @@
 ﻿@page "/settings"
 @using WebviewAppShared.Data
 @using System.Data
+@using Microsoft.AspNetCore.Components.Web
+@inject IJSRuntime JSRuntime
+<style>
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
+        .table thead th {
+            background-color: #333;
+            color: #fff;
+            font-weight: bold;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table tbody td {
+            padding: 8px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .table tbody {
+            background-color: #f2f2f2;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e0e0e0;
+        }
+
+    .scrollable-container {
+        max-height: 400px;
+        overflow-y: scroll;
+    }
+</style>
 <h1>Settings:</h1> 
 
 
@@ -125,13 +158,78 @@
 
             </div>*@
 
+            <div class="form-group row">
+                <label for="machine_no" class="col-sm-5 col-form-label">Machine Size</label>
+                <div class="col-sm-7">
+                    <input type="text" class="form-control" id="machine_serialNumber" placeholder="96-230 Annihilator" @bind-value="@MachineForm.M6" />
+                </div>
 
+            </div>
         <button type="button" class="btn btn-secondary btn-lg" @onclick="AddMachine">Add Machine</button>
     </form>
     
 </div>
     <h2>@Message</h2>
-</div>
+    <div class="row">
+        <div class="col-12">
+            <div class="scrollable-container">
+                <h2>Sensor Details</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sensor Name</th>
+                            <th>DAQ Model</th>
+                            <th>DAQ Serial Number</th>
+                            <th>Accelerometer</th>
+                            <th>Accel X Sensitivity</th>
+                            <th>Accel Y Sensitivity</th>
+                            <th>Accel Z Sensitivity</th>
+                            <th>Sampling Frequency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Loop through sensor data and display rows -->
+                        @foreach (var sensor in sensorsList)
+                        {
+                            <tr>
+                                <td>@sensor.S2</td>
+                                <td>@sensor.S3</td>
+                                <td>@sensor.S4</td>
+                                <td>@sensor.S5</td>
+                                <td>@sensor.S6</td>
+                                <td>@sensor.S7</td>
+                                <td>@sensor.S8</td>
+                                <td>@sensor.S9</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <h2>Machine Details</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Machine Serial Number</th>
+                            <th>Machine Name</th>
+                            <th>Machine Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Loop through machine data and display rows -->
+                        @foreach (var machine in machinesList)
+                        {
+                            <tr>
+                                <td>@machine.M1</td>
+                                <td>@machine.M2</td>
+                                <td>@machine.M6</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
 
 @code{
 
@@ -145,6 +243,10 @@
     public M MachineForm { get; set; }
     //public MachineModel MachineModel { get; set; }
     public List<MachineModel> machines { get; set; }
+    public List<M> machinesList { get; set; } = new List<M>();
+    public string SensorMessage { get; set; }
+    public string MachineMessage { get; set; }
+    public List<S> sensorsList { get; set; } = new List<S>();
 
     protected override Task OnInitializedAsync()
     {
@@ -152,10 +254,8 @@
         SensorForm = new S();
         MachineForm = new M();
 
-
         GetMachineType();
-        //Object for Machines Model
-        //MachineModel = new MachineModel();
+
         return base.OnInitializedAsync();
     }
 
@@ -165,33 +265,44 @@
         dbConn.InsertData(query);
         SensorForm = new S();
         Message = "Data Saved!";
+        FetchSensorData();
     }
 
     public void AddMachine()
     {
-        //fileName = returnImageName(MachineForm.Image);
-        //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
-        //    MachineForm.Name
-        //    + "')";
-
-        query_2 = $"SELECT count(*) from M where M1 = {MachineForm.M1}";
-        var count = dbConn.GetCount(query_2);
-        if (count == 0)
+        try
         {
-            query = "INSERT INTO M(M1,M2)VALUES('" + MachineForm.M1 + "','" +
-            MachineForm.M2
+            //fileName = returnImageName(MachineForm.Image);
+            //query = "INSERT INTO MachineDetails(SerialNumber, Image, Name)VALUES('" + MachineForm.SerialNumber + "','" + fileName + "','" +
+            //    MachineForm.Name
+            //    + "')";
 
-            + "')";
-            dbConn.InsertData(query);
-            MachineForm = new M();
-            Message = "Data Saved!";
-        }else
+            query_2 = $"SELECT count(*) from M where M1 = {MachineForm.M1}";
+            var count = dbConn.GetCount(query_2);
+            if (count == 0)
+            {
+                query = "INSERT INTO M(M1,M2,M6)VALUES('" + MachineForm.M1 + "','" +
+                MachineForm.M2
+                + "','" +
+                MachineForm.M6
+                + "')";
+                dbConn.InsertData(query);
+                MachineForm = new M();
+                Message = "Data Saved!";
+                FetchMachineData();
+            }
+            else
+            {
+                Message = "Already Exists!";
+            }
+        }
+        catch (Exception)
         {
-            Message = "Already Exists!";
+            ShowAlert("Please enter valid data");
         }
 
-
     }
+    
     public void GetMachineType()
     {
         //query = "SELECT * FROM Machine";
@@ -231,4 +342,48 @@
         return files[files.Length - 1]; 
 
     }
+    public async Task FetchSensorData()
+    {
+        string query = "select * from S";
+        dataTable = dbConn.GetData(query);
+
+        foreach (DataRow row in dataTable.Rows)
+        {
+            S sensors = new S();
+            sensors.S1 = Convert.ToInt32(row["S1"]);
+            sensors.S2 = row["S2"].ToString();
+            sensors.S3 = row["S3"].ToString();
+            sensors.S4 = Convert.ToInt32(row["S4"]);
+            sensors.S5 = row["S5"].ToString();
+            sensors.S6 = Convert.ToInt32(row["S6"]);
+            sensors.S7 = Convert.ToInt32(row["S7"]);
+            sensors.S8 = Convert.ToInt32(row["S8"]);
+            sensors.S9 = Convert.ToInt32(row["S9"]);
+
+            sensorsList.Add(sensors);
+        }
+        // Update the UI
+        StateHasChanged();
+    }
+    public async Task FetchMachineData()
+    {
+        string query = "select M1,M2,M6 from M";
+        dataTable = dbConn.GetData(query);
+
+        foreach (DataRow row in dataTable.Rows)
+        {
+            M mL = new M();
+            mL.M1 = row["M1"].ToString();
+            mL.M2 = row["M2"].ToString();
+            mL.M6 = row["M6"].ToString();
+            machinesList.Add(mL);
+        }
+        // Update the UI
+        StateHasChanged();
+    }
+        private void ShowAlert(string message)
+        {
+            // Invoke JavaScript alert function to show the alert
+        JSRuntime.InvokeVoidAsync("alert", message);
+        }
 }
