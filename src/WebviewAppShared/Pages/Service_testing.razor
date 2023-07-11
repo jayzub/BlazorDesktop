@@ -231,12 +231,13 @@
             // To do- insert in excel
             //dbConn.BulkInsert(d);
             DateTime datetime = DateTime.Now.Date;
+            string formattedDate = datetime.ToString("yyyy-MM-dd");
             //DateTime dateOnly = datetime.Date;
             //DateTime datetime = DateTime.Date;
             //string fileName = @$"QUICKMILL\{dateOnly}-{mach.MC2}-{mach.M1}\{dateOnly}-{mach.MC3}-{mach.MC4}.csv";
             string folderPath = "QUICKMILL";
-            string subFolderPath = $"{datetime.ToShortDateString().ToString()}-{mach.M2}-{mach.M1}-{TestID}";
-            string filePath = Path.Combine(folderPath, subFolderPath, $"{datetime.ToShortDateString().ToString()}-{mach.MC3}-{mach.MC4}-{mach.count}.csv");
+            string subFolderPath = $"{formattedDate}-{mach.M2}-{mach.M1}-{TestID}";
+            string filePath = Path.Combine(folderPath, subFolderPath, $"{formattedDate}-{mach.MC3}-{mach.MC4}-{mach.count}.csv");
 
 
 
