@@ -204,7 +204,8 @@ namespace WebviewAppShared.Data
                                                             M2 TEXT,
                                                             M3 VARCHAR (50),
                                                             M4 VARCHAR (50),
-                                                            M5 DATETIME,M6 VARCHAR);";
+                                                            M5 DATETIME,
+                                                            M6 VARCHAR(50));";
 
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
