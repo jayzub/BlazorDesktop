@@ -200,12 +200,11 @@ namespace WebviewAppShared.Data
         private void CreateTableM(SQLiteConnection connection)
         {
             string query = @"CREATE TABLE IF NOT EXISTS M (
-                                                            M1 VARCHAR (50),
+                                                             M1 VARCHAR (50),
                                                             M2 TEXT,
                                                             M3 VARCHAR (50),
                                                             M4 VARCHAR (50),
-                                                            M5 DATETIME,
-                                                            M6 VARCHAR (50));";
+                                                            M5 DATETIME);";
 
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
