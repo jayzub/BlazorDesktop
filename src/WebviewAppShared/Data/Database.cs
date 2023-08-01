@@ -169,9 +169,11 @@ namespace WebviewAppShared.Data
                                                 MC1 NUMERIC,
                                                 MC2 INTEGER,
                                                 MC3 VARCHAR,
-                                                MC4 VARCHAR);";
+                                                MC4 VARCHAR,
+                                                MC5 VARCHAR,
+                                                MC6 VARCHAR);";
 
-
+            // Need to write query to insert data of MC
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
             {
                 command.ExecuteNonQuery();

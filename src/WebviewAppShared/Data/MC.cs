@@ -12,6 +12,8 @@ namespace WebviewAppShared.Data
         public string MC2 { get; set; }
         public string MC3 { get; set; }
         public string MC4 { get; set; }
+        public string MC5 { get; set; }
+        public string MC6 { get; set; }
 
         // used to count
         public int count { get; set; }
