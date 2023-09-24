@@ -2,6 +2,7 @@
 @using WebviewAppShared.Data
 @using System.Data
 @inject NavigationManager navigationManager
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 <h1>Test Setup</h1>
 
@@ -56,15 +57,15 @@
 
                 </div>
                 <div class="form-group row">
-                    <label for="hours" class="col-sm-5 col-form-label">Hours</label>
+                    <label for="hours" class="col-sm-5 col-form-label">Hours (Required)</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="hours" @bind-value="@objTest.TD3" />
+                        <input type="text" class="form-control" id="hours" @bind-value="@objTest.TD3" required />
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="operator" class="col-sm-5 col-form-label">Operator</label>
+                    <label for="operator" class="col-sm-5 col-form-label">Operator (Required)</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="operator" @bind-value="@objTest.TD4" />
+                        <input type="text" class="form-control" id="operator" @bind-value="@objTest.TD4" required/>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -107,7 +108,7 @@
                         <th scope="col"></th>
                     </tr>
                 </thead>
-
+                
                 <tbody>
                     @if (machine == "Intimidator")
                     {
@@ -125,7 +126,7 @@
                             {
                                 flag = objMaintenance.Axis;
                             }
-                            <td>
+                            @*<td>
                                 @if (flag == "spindle")
                                 {
                                     <select name="components" id="components">
@@ -150,11 +151,13 @@
                                         <option value="Linear Bearing">Linear Bearing</option>
                                     </select>
                                 }
-                            </td>
+                            </td>*@
                             <td>
                                 <select name="task" id="task">
                                     <option value="lubricated">Lubricated</option>
                                     <option value="replaced">Replaced</option>
+                                    <option value="fan cleaned">Fan Cleaned</option>
+                                    <option value="other">Other</option>
                                 </select>
                             </td>
                             <td><input type="text" @bind-value="@objMaintenance.Note" /></td>
@@ -210,7 +213,14 @@
                             </td>
                             <td><input type="text" @bind-value="@objMaintenance.Note" /></td>
 
-                            <td><button type="button" id="btnAdd" class="btn btn-xs btn-primary classAdd">Add More</button></td>
+                            <td>
+                                <button type="button" id="btnAdd" class="btn btn-xs btn-primary classAdd"> 
+                                @*@onclick="@(async () => {
+        await JSRuntime.InvokeVoidAsync("addRow"); // Pass a reference to this component
+    })">*@
+                                    Add More
+                                </button>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -219,6 +229,7 @@
 
         </div>
     </div>
+
     @*<button type="button" class="btn btn-secondary btn-lg" @onclick="RunCommand">Next</button>*@
 </div>
 
@@ -242,8 +253,7 @@
     public int lineCount { get; set; }
     public string machine { get; set; }
     public TD newTestDetail { get; set; }
-
-
+    
     public string flag_machineName { get; set; }
 
     protected override Task OnInitializedAsync()
@@ -260,7 +270,53 @@
 
         return base.OnInitializedAsync();
     }
+    //protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        await JSRuntime.InvokeVoidAsync("eval", @"
+    //        function addRow() { 
+    //            var newRow = $(this).closest('tr').clone();
 
+    //            newRow.find('#btnAdd').remove();
+                
+    //            // Clear any input values in the new row
+    //            //newRow.find('input').val('');
+                
+    //            // Append the new row to the table body
+    //            $('#maintenance-table tbody').append(newRow);
+    //           }
+    //        ");
+    //    }
+    //}
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+        function addRow() {
+            //var newRow = $(button).closest('tr').clone();
+
+            //newRow.find('#btnAdd').remove();
+
+            //// Clear any input values in the new row
+            ////newRow.find('input').val('');
+
+            //// Append the new row to the table body
+            //$('#maintenance-table tbody').append(newRow);
+
+            //var tableBody = document.querySelector('#maintenance-table tbody');
+            //    var newRow = tableBody.querySelector('tr').cloneNode(true);
+
+            //    // Update unique IDs for the new row's elements if needed
+
+            //    tableBody.appendChild(newRow);
+            rowCount+=1;
+           }
+        ");
+        }
+    }
+   
     public void RunCommand()
     {
 
