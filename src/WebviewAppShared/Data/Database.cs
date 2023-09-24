@@ -44,7 +44,6 @@ namespace WebviewAppShared.Data
                     CreateTableF(sqlite_conn);
                     CreateTableG(sqlite_conn);
                     CreateTableMC(sqlite_conn);
-                    InsertDataIntoMC(sqlite_conn);
                     CreateTableS(sqlite_conn);
                     CreateTableM(sqlite_conn);
                     CreateTableTD(sqlite_conn);
@@ -181,6 +180,7 @@ namespace WebviewAppShared.Data
             {
                 command.ExecuteNonQuery();
             }
+            InsertDataIntoMC(connection);
         }
 
         private void InsertDataIntoMC(SQLiteConnection connection)
@@ -209,27 +209,22 @@ namespace WebviewAppShared.Data
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(19, 'Annihilator', 'X', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-X-BN-230');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(20, 'Annihilator', 'X', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-X-LB-230');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(21, 'Annihilator', 'Y', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-Y-BN-96');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(21, 'Annihilator', 'Y', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-Y-BN-96');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(22, 'Annihilator', 'Y', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-Y-LB-96');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(23, 'Annihilator', 'Z', 'Ballscrew DE Bearing', '1,0,0;0,0,1;0,1,0', 'INT-Z-DE');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(24, 'Annihilator', 'Z', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-Z-LB');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(25, 'Annihilator', 'Z', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-Z-BN');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(26, 'Annihilator', 'W', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-W-BN-230');",
             "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(27, 'Annihilator', 'W', 'Liner Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-W-LB-230');"
+
             // Add more INSERT statements for the remaining data rows
         };
 
-            using (SQLiteCommand command = new SQLiteCommand(connection))
+            foreach (string insertQuery in insertStatements)
             {
-                connection.Open();
-
-                foreach (string insertStatement in insertStatements)
+                using (SQLiteCommand insertDataCommand = new SQLiteCommand(insertQuery, connection))
                 {
-                    command.CommandText = insertStatement;
-                    command.ExecuteNonQuery();
+                    insertDataCommand.ExecuteNonQuery();
                 }
-
-                connection.Close();
             }
         }
 
