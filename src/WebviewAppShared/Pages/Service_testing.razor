@@ -1,9 +1,9 @@
 @page "/service_testing"
-@page "/service_testing/{TestID:int}/{Sensor}"
+@page "/service_testing/{TestID:int}/{Sensor}/{duration:int}"
 @using WebviewAppShared.Data
 @using NationalInstruments.DAQmx;
 @using System.IO;
-@using System.Threading; /
+@using System.Threading; 
 @using System.Data;
 @using System.Collections.Generic;
 @using System.Diagnostics;
@@ -11,8 +11,8 @@
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 <h1>Service Testing</h1>
-<p>@Sensor</p>
-<p>@test</p>
+@*<p>@Sensor</p>
+<p>@test</p>*@
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -168,6 +168,8 @@
     public int TestID { get; set; }
     [Parameter]
     public String Sensor { get; set; }
+    [Parameter]
+    public int duration { get; set; }
     public String test{ get; set; }
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
@@ -177,6 +179,8 @@
     public bool collectingData { get; set; }
     public int ind = 0;
     MC mach = new MC();
+
+    S sensorData = new S();
 
 
     List<MC> machineComponents = new List<MC>();
@@ -220,6 +224,28 @@
             mc.count = 0;
 
             machineComponents.Add(mc);
+        }
+
+        string query2 = $"select * from S where s2='{Sensor}'";
+
+        dataTable = dbConn.GetData(query2);
+
+
+        // Access the first row of the DataTable
+        if (dataTable.Rows.Count > 0)
+        {
+            DataRow firstRow = dataTable.Rows[0];
+
+            // Populate the properties of the sensorData instance from the first row
+            sensorData.S1 = Convert.ToInt32(firstRow["S1"]);
+            sensorData.S2 = firstRow["S2"].ToString();
+            sensorData.S3 = firstRow["S3"].ToString();
+            sensorData.S4 = Convert.ToInt32(firstRow["S4"]);
+            sensorData.S5 = firstRow["S5"].ToString();
+            sensorData.S6 = Convert.ToDouble(firstRow["S6"]);
+            sensorData.S7 = Convert.ToDouble(firstRow["S7"]);
+            sensorData.S8 = Convert.ToDouble(firstRow["S8"]);
+            sensorData.S9 = Convert.ToInt32(firstRow["S9"]);
         }
 
         return base.OnInitializedAsync();
@@ -423,21 +449,21 @@
         DataTable dt = new DataTable();
 
         // Define Parameters
-        int rate = 12800;
-        int _samplesPerChannel = 20;
+        int rate = sensorData.S9;
+        int _samplesPerChannel = (duration >= 30)? duration - 10: duration - 5;
         int bufferSize = rate * _samplesPerChannel;
 
         //Inilitiaze task
         NationalInstruments.DAQmx.Task acelerometerTask1 = new NationalInstruments.DAQmx.Task();
 
         //Define Channels
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S6, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S7, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S8, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
 
         acelerometerTask1.Timing.ConfigureSampleClock("", rate, SampleClockActiveEdge.Rising, SampleQuantityMode.FiniteSamples, bufferSize);
         // This is the timing for data collection
-        acelerometerTask1.Stream.Timeout = 30000;
+        acelerometerTask1.Stream.Timeout = duration * 1000;// seconds to milliseconds
         acelerometerTask1.Control(TaskAction.Verify);
         start = DateTime.Now.ToOADate();
         collectingData = true;

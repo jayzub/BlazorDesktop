@@ -185,48 +185,67 @@ namespace WebviewAppShared.Data
 
         private void InsertDataIntoMC(SQLiteConnection connection)
         {
-            // Define SQL INSERT statements for each row of data
-            string[] insertStatements =
+            // Check if the table exists and is empty
+            if (IsMCTableEmpty(connection))
             {
-            "INSERT INTO MC (MC1, MC2, MC3, MC4, MC5, MC6) VALUES (1, 'Intimidator', 'Spindle', 'DE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-S-DE');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(2, 'Intimidator', 'Spindle', 'ODE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-S-ODE');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(3, 'Intimidator', 'W', 'Ballscrew DE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-W-DE-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(4, 'Intimidator', 'W', 'Ballscrew ODE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-W-ODE-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(5, 'Intimidator', 'W', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-W-BN-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(6, 'Intimidator', 'W', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-W-LB-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(7, 'Intimidator', 'X', 'Ballscrew DE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-X-DE-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(8, 'Intimidator', 'X', 'Ballscrew ODE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-X-ODE-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(9, 'Intimidator', 'X', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-X-BN-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(10, 'Intimidator', 'X', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-X-LB-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(11, 'Intimidator', 'Y', 'Ballscrew DE Bearing', '1,0,0;0,0,1;0,1,0', 'INT-Y-DE-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(12, 'Intimidator', 'Y', 'Ballscrew ODE Bearing', '0,0,1;1,0,0;0,1,0', 'INT-Y-ODE-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(13, 'Intimidator', 'Y', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-Y-BN-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(14, 'Intimidator', 'Y', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-Y-LB-120');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(15, 'Intimidator', 'Z', 'Ballscrew DE Bearing', '1,0,0;0,0,1;0,1,0', 'INT-Z-DE');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(16, 'Intimidator', 'Z', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-Z-BN');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(17, 'Intimidator', 'Z', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-Z-LB');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(18, 'Annihilator', 'Spindle', 'ODE Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-S-ODE');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(19, 'Annihilator', 'X', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-X-BN-230');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(20, 'Annihilator', 'X', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-X-LB-230');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(21, 'Annihilator', 'Y', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-Y-BN-96');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(22, 'Annihilator', 'Y', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-Y-LB-96');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(23, 'Annihilator', 'Z', 'Ballscrew DE Bearing', '1,0,0;0,0,1;0,1,0', 'INT-Z-DE');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(24, 'Annihilator', 'Z', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-Z-LB');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(25, 'Annihilator', 'Z', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-Z-BN');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(26, 'Annihilator', 'W', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-W-BN-230');",
-            "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(27, 'Annihilator', 'W', 'Liner Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-W-LB-230');"
-
-            // Add more INSERT statements for the remaining data rows
-        };
-
-            foreach (string insertQuery in insertStatements)
-            {
-                using (SQLiteCommand insertDataCommand = new SQLiteCommand(insertQuery, connection))
+                // Define SQL INSERT statements for each row of data
+                string[] insertStatements =
                 {
-                    insertDataCommand.ExecuteNonQuery();
+                    "INSERT INTO MC (MC1, MC2, MC3, MC4, MC5, MC6) VALUES (1, 'Intimidator', 'Spindle', 'DE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-S-DE');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(2, 'Intimidator', 'Spindle', 'ODE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-S-ODE');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(3, 'Intimidator', 'W', 'Ballscrew DE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-W-DE-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(4, 'Intimidator', 'W', 'Ballscrew ODE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-W-ODE-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(5, 'Intimidator', 'W', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-W-BN-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(6, 'Intimidator', 'W', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-W-LB-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(7, 'Intimidator', 'X', 'Ballscrew DE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-X-DE-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(8, 'Intimidator', 'X', 'Ballscrew ODE Bearing', '0,0,1;0,1,0;1,0,0', 'INT-X-ODE-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(9, 'Intimidator', 'X', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-X-BN-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(10, 'Intimidator', 'X', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-X-LB-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(11, 'Intimidator', 'Y', 'Ballscrew DE Bearing', '1,0,0;0,0,1;0,1,0', 'INT-Y-DE-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(12, 'Intimidator', 'Y', 'Ballscrew ODE Bearing', '0,0,1;1,0,0;0,1,0', 'INT-Y-ODE-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(13, 'Intimidator', 'Y', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-Y-BN-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(14, 'Intimidator', 'Y', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-Y-LB-120');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(15, 'Intimidator', 'Z', 'Ballscrew DE Bearing', '1,0,0;0,0,1;0,1,0', 'INT-Z-DE');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(16, 'Intimidator', 'Z', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'INT-Z-BN');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(17, 'Intimidator', 'Z', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-Z-LB');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(18, 'Annihilator', 'Spindle', 'ODE Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-S-ODE');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(19, 'Annihilator', 'X', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-X-BN-230');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(20, 'Annihilator', 'X', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-X-LB-230');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(21, 'Annihilator', 'Y', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-Y-BN-96');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(22, 'Annihilator', 'Y', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-Y-LB-96');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(23, 'Annihilator', 'Z', 'Ballscrew DE Bearing', '1,0,0;0,0,1;0,1,0', 'INT-Z-DE');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(24, 'Annihilator', 'Z', 'Linear Bearing', '1,0,0;0,1,0;0,0,1', 'INT-Z-LB');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(25, 'Annihilator', 'Z', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-Z-BN');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(26, 'Annihilator', 'W', 'Ball Nut', '1,0,0;0,1,0;0,0,1', 'ANI-W-BN-230');",
+                    "INSERT INTO MC(MC1, MC2, MC3, MC4, MC5, MC6) VALUES(27, 'Annihilator', 'W', 'Liner Bearing', '1,0,0;0,1,0;0,0,1', 'ANI-W-LB-230');"
+
+                    // Add more INSERT statements for the remaining data rows
+                };
+
+                foreach (string insertQuery in insertStatements)
+                {
+                    using (SQLiteCommand insertDataCommand = new SQLiteCommand(insertQuery, connection))
+                    {
+                        insertDataCommand.ExecuteNonQuery();
+                    }
                 }
             }
         }
+
+        private bool IsMCTableEmpty(SQLiteConnection connection)
+        {
+            string query = "SELECT COUNT(*) FROM MC;";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                //connection.Open();
+                int rowCount = Convert.ToInt32(command.ExecuteScalar());
+                //connection.Close();
+
+                return rowCount == 0;
+            }
+        }
+
 
         private void CreateTableS(SQLiteConnection connection)
         {

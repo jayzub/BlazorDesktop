@@ -30,7 +30,19 @@
                     <div class="col">
                         @foreach (MC m in machineComponents)
                         {
-                            <div class="roundedStylings"><p>@m.MC3 @m.MC4</p><div class="roundedMargin"><button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[0].ToString())" type="button"><span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[0]</span></button><button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[1].ToString())" type="button"><span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[1]</span></button><button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[2].ToString())" type="button"><span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[2]</span></button></div></div>
+                            <div class="roundedStylings"><p>@m.MC3 @m.MC4</p>
+                                <div class="roundedMargin">
+                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[0].ToString())" type="button">
+                                        <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[0]</span>
+                                    </button>
+                                        <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[1].ToString())" type="button">
+                                            <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[1]</span>
+                                        </button>
+                                            <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[2].ToString())" type="button">
+                                                <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[2]</span>
+                                            </button>
+                                </div>
+                            </div>
                         }
                 </div>
                 </div>
@@ -54,12 +66,12 @@
 
         <div class="my-5 mx-0" style="width:950px;padding:0;">
             <RadzenChart Style="height:400px;margin-left:0px;color:white">
-            <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis"/> 
-            <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis"/>
-            <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis"/>  
-            <RadzenValueAxis Min="-5" Max="5" />
-            <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
-        </RadzenChart>
+                <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis"/> 
+                <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis"/>
+                <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis"/>  
+                <RadzenValueAxis Min="-5" Max="5" />
+                <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
+            </RadzenChart>
         </div>
     <div class="row" style="margin-top:50px">
         <div class="col text-center">
@@ -123,8 +135,11 @@
                 var recordsAsDictionaries = csv.GetRecords<dynamic>().ToList();
 
                 // Map the data to the DataPlots class
-                foreach (var record in recordsAsDictionaries)
+                for (int i = 0; i < recordsAsDictionaries.Count; i += 5000)
                 {
+
+                        var record = recordsAsDictionaries[i];
+
                     DataPlots dataPlots = new DataPlots();
                     dataPlots.TimeStamp = ConvertToDateTime(record.TimeStamp.ToString());
                     dataPlots.X_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["X-Axis"]);
