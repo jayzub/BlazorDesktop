@@ -13,9 +13,9 @@ namespace WebviewAppShared.Data
         public string S3 { get; set; } //DAQ Model
         public int S4 { get; set; } //DAQ Serial 
         public string S5 { get; set; } //Accelerometer
-        public float S6 { get; set; } // Accel X Sens
-        public float S7 { get; set; } // Accel Y Sens
-        public float S8 { get; set; } // Accel Z Sens
+        public double S6 { get; set; } // Accel X Sens
+        public double S7 { get; set; } // Accel Y Sens
+        public double S8 { get; set; } // Accel Z Sens
         public int S9 { get; set; } // Sensor sampling frequnecy
 
     }
