@@ -3,8 +3,70 @@
 @using System.Diagnostics;
 @using System.IO;
 
-<h1>Review Machine</h1> 
+<h1>Review Machine</h1>
+<style>
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+        padding-top: 60px;
+    }
 
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        color: #333; /* Dark gray text color */
+        width: 25%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .close {
+        color: #aaa;
+        margin-left: auto;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    .show-modal {
+        display: block;
+    }
+</style>
+@if (showLoadingModal)
+{
+    <div class="modal @(showLoadingModal ? "show-modal" : "")">
+        <div class="modal-content">
+            <p>Please wait while the data collection process is running.</p>
+        </div>
+    </div>
+}
+
+@if (showFileNotFoundModal)
+{
+    <div class="modal @(showFileNotFoundModal ? "show-modal" : "")">
+        <div class="modal-content">
+            <span class="close" @onclick="CloseModal">&times;</span>
+            <p>MMRI application not found at the specified path. Please confirm MMRI installation status</p>
+        </div>
+    </div>
+}
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -73,62 +135,66 @@
 			</tr>
 		</tbody>
 	</table>
-    @if (showModal)
-    {
-        <div class="modal">
-            <div class="modal-content">
-                <span class="close" @onclick="CloseModal">&times;</span>
-                <p>MMRI application not found at the specified path.</p>
-            </div>
-        </div>
-    }
 </div>
 
 @code {
     [Parameter]
     public int TestID { get; set; }
-    private bool showModal = false;
+    private bool showLoadingModal;
+    private bool showFileNotFoundModal = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        //if (TestID!=0)
+        if (TestID != 0)
         {
-            appMMRITrigger();
-        }
-        base.OnInitialized();
-    }
+            showLoadingModal = true;
+            // Wait for 3 seconds before hiding the loading modal
+            await Task.Delay(3000);
 
-    private void appMMRITrigger()
-    {
-        const string MMRI_PATH = @"C:\Program Files\McMaster Manufacturing Research Institute\MMRI_QM\application";
-        const string EXE_NAME = "MMRI_QM.exe";
-        string exePath = Path.Combine(MMRI_PATH, EXE_NAME);
-        ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                CreateNoWindow = false,
-                UseShellExecute = false,
-                FileName = exePath,
-                WindowStyle = ProcessWindowStyle.Hidden
-            };
+            // Check if the file exists before attempting to start the process
+            const string MMRI_PATH = @"C:\Program Files\McMaster Manufacturing Research Institute\MMRI_QM\application";
+            const string EXE_NAME = "MMRI_QM.exe";
+            string exePath = Path.Combine(MMRI_PATH, EXE_NAME);
 
-        try
-        {
-            using (Process exeProcess = Process.Start(startInfo))
+            if (File.Exists(exePath))
             {
-                exeProcess.WaitForExit();
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        CreateNoWindow = false,
+                        UseShellExecute = false,
+                        FileName = exePath,
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    };
+
+                try
+                {
+                    using (Process exeProcess = Process.Start(startInfo))
+                    {
+                        await exeProcess.WaitForExitAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    showFileNotFoundModal = true;
+                    StateHasChanged();
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            showModal = true;
+            else
+            {
+                showLoadingModal = false;
+                showFileNotFoundModal = true;
+                StateHasChanged();
+            }
+            await Task.Delay(3000);
+            showLoadingModal = false;
             StateHasChanged();
         }
     }
 
+
     private void CloseModal()
     {
-        showModal = false;
-        StateHasChanged();
+        showFileNotFoundModal = false;
     }
 }
