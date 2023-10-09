@@ -1,4 +1,7 @@
 ﻿@page "/review_machine"
+@page "/review_machine/{TestID:int}"
+@using System.Diagnostics;
+@using System.IO;
 
 <h1>Review Machine</h1> 
 
@@ -70,4 +73,62 @@
 			</tr>
 		</tbody>
 	</table>
+    @if (showModal)
+    {
+        <div class="modal">
+            <div class="modal-content">
+                <span class="close" @onclick="CloseModal">&times;</span>
+                <p>MMRI application not found at the specified path.</p>
+            </div>
+        </div>
+    }
 </div>
+
+@code {
+    [Parameter]
+    public int TestID { get; set; }
+    private bool showModal = false;
+
+    protected override void OnInitialized()
+    {
+        //if (TestID!=0)
+        {
+            appMMRITrigger();
+        }
+        base.OnInitialized();
+    }
+
+    private void appMMRITrigger()
+    {
+        const string MMRI_PATH = @"C:\Program Files\McMaster Manufacturing Research Institute\MMRI_QM\application";
+        const string EXE_NAME = "MMRI_QM.exe";
+        string exePath = Path.Combine(MMRI_PATH, EXE_NAME);
+        ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                CreateNoWindow = false,
+                UseShellExecute = false,
+                FileName = exePath,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+        try
+        {
+            using (Process exeProcess = Process.Start(startInfo))
+            {
+                exeProcess.WaitForExit();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            showModal = true;
+            StateHasChanged();
+        }
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        StateHasChanged();
+    }
+}
