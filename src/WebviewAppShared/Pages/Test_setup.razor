@@ -4,6 +4,8 @@
 @inject NavigationManager navigationManager
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 @using System.ComponentModel.DataAnnotations;
+@using NationalInstruments.DAQmx;
+
 
 <h1>Test Setup</h1>
 
@@ -87,9 +89,9 @@
                     <div class="col-sm-7">
                         <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.TD6">
                             <option value="select" selected>Select Sensor </option>
-                            @foreach (var item in sensors)
+                            @foreach (var item in elgibleDevices)
                             {
-                                <option value=@item.S2>@item.S2</option>
+                                <option value="@($"{item}Mod1")">@item</option>
                             }
                         </select>
                         @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
@@ -262,6 +264,8 @@
     public string machine { get; set; }
     public TD newTestDetail { get; set; }
 
+    public string[] elgibleDevices{ get; set; }
+
     //To be implemented
     [Required(ErrorMessage = "Email is required.")]
     public int duration { get; set; }
@@ -269,8 +273,9 @@
 
     public string flag_machineName { get; set; }
 
-    protected override Task OnInitializedAsync()
+    protected override System.Threading.Tasks.Task OnInitializedAsync()
     {
+
         objTest = new TD();
         dbConn = new Database();
         objMaintenance = new Maintenance();
@@ -281,8 +286,32 @@
         flag = "spindle";
         lineCount = 1;
         duration = 15;
+
+        // Get all devices from local 
+        string[] devices = DaqSystem.Local.Devices;
+        //Filtering the devices
+        elgibleDevices = FilterCDAQValues(devices);
+  
+
         return base.OnInitializedAsync();
     }
+
+    static string[] FilterCDAQValues(string[] inputArray)
+    {
+        // Use LINQ to filter values that start with "cDAQ" followed by a number
+        var filteredValues = inputArray
+            .Where(value => value.StartsWith("cDAQ") && IsNumeric(value.Substring(4)))
+            .ToArray();
+
+        return filteredValues;
+    }
+
+    static bool IsNumeric(string value)
+    {
+        // Check if the value is numeric
+        return int.TryParse(value, out _);
+    }
+
     //protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
     //{
     //    if (firstRender)

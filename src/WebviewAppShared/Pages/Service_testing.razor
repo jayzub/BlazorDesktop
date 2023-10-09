@@ -449,7 +449,7 @@
         DataTable dt = new DataTable();
 
         // Define Parameters
-        int rate = sensorData.S9;
+        int rate = 12800;
         int _samplesPerChannel = (duration >= 30)? duration - 10: duration - 5;
         int bufferSize = rate * _samplesPerChannel;
 
@@ -457,9 +457,9 @@
         NationalInstruments.DAQmx.Task acelerometerTask1 = new NationalInstruments.DAQmx.Task();
 
         //Define Channels
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S6, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S7, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S8, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
 
         acelerometerTask1.Timing.ConfigureSampleClock("", rate, SampleClockActiveEdge.Rising, SampleQuantityMode.FiniteSamples, bufferSize);
         // This is the timing for data collection
@@ -563,10 +563,11 @@
         for (int i = 0; i < data.GetLength(1); i++)
         {
             dtRow = dt.NewRow();
+            double voltsToMillivolts = 1000.0; // 1 Volt = 1000 Millivolts
             dtRow["TimeStamp"] = start + (diff * i);
-            dtRow["X-Axis"] = data[0, i];
-            dtRow["Y-Axis"] = data[1, i];
-            dtRow["Z-Axis"] = data[2, i];
+            dtRow["X-Axis"] = data[0, i] * voltsToMillivolts;
+            dtRow["Y-Axis"] = data[1, i] * voltsToMillivolts;
+            dtRow["Z-Axis"] = data[2, i] * voltsToMillivolts;
             //dtRow["G_test_id"] = gTestId;
             //dtRow["Component_id"] = componentId;
             //dtRow["Test_Round"] = testRound;
