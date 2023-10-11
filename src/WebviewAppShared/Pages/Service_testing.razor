@@ -1,6 +1,7 @@
 @page "/service_testing"
-@page "/service_testing/{TestID:int}/{Sensor}/{duration:int}"
+@page "/service_testing/{TestID:int}/{Sensor}/{duration:int}/{daqModel}/{daqSerialnumb:long}/{accelerometer}/{x_sensitivity:double}/{y_sensitivity:double}/{z_sensitivity:double}/{frequency:int}"
 @using WebviewAppShared.Data
+@using System.Text.Json;
 @using NationalInstruments.DAQmx;
 @using System.IO;
 @using System.Threading; 
@@ -12,7 +13,16 @@
 
 <h1>Service Testing</h1>
 @*<p>@Sensor</p>
-<p>@test</p>*@
+<p>@test</p>
+<p>sensor  Data ------------</p>
+<p>@sensorData.S2</p>
+<p>@sensorData.S3</p>
+<p>@sensorData.S4</p>
+<p>@sensorData.S5</p>
+<p>@sensorData.S6</p>
+<p>@sensorData.S7</p>
+<p>@sensorData.S8</p>
+<p>@sensorData.S9</p>*@
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -164,12 +174,28 @@
 
 @code
 {
+
     [Parameter]
     public int TestID { get; set; }
     [Parameter]
     public String Sensor { get; set; }
     [Parameter]
     public int duration { get; set; }
+    [Parameter]
+    public string daqModel { get; set; }
+    [Parameter]
+    public long daqSerialnumb { get; set; }
+    [Parameter]
+    public String accelerometer { get; set; }
+    [Parameter]
+    public double x_sensitivity { get; set; }
+    [Parameter]
+    public double y_sensitivity { get; set; }
+    [Parameter]
+    public double z_sensitivity { get; set; }
+    [Parameter]
+    public int frequency { get; set; }
+
     public String test{ get; set; }
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
@@ -191,6 +217,18 @@
 
     protected override System.Threading.Tasks.Task OnInitializedAsync()
     {
+        sensorData.S2 = Sensor;
+        sensorData.S3 = daqModel;
+        sensorData.S4 = daqSerialnumb;
+        sensorData.S5 = accelerometer;
+        sensorData.S6 = x_sensitivity;
+        sensorData.S7 = y_sensitivity;
+        sensorData.S8 = z_sensitivity;
+        sensorData.S9 = frequency;
+
+
+
+
         TestCompleted = false;
         underTest = false;
         collectingData = false;
@@ -232,21 +270,21 @@
 
 
         // Access the first row of the DataTable
-        if (dataTable.Rows.Count > 0)
-        {
-            DataRow firstRow = dataTable.Rows[0];
+        //if (dataTable.Rows.Count > 0)
+        //{
+        //    DataRow firstRow = dataTable.Rows[0];
 
-            // Populate the properties of the sensorData instance from the first row
-            sensorData.S1 = Convert.ToInt32(firstRow["S1"]);
-            sensorData.S2 = firstRow["S2"].ToString();
-            sensorData.S3 = firstRow["S3"].ToString();
-            sensorData.S4 = Convert.ToInt32(firstRow["S4"]);
-            sensorData.S5 = firstRow["S5"].ToString();
-            sensorData.S6 = Convert.ToDouble(firstRow["S6"]);
-            sensorData.S7 = Convert.ToDouble(firstRow["S7"]);
-            sensorData.S8 = Convert.ToDouble(firstRow["S8"]);
-            sensorData.S9 = Convert.ToInt32(firstRow["S9"]);
-        }
+        //    // Populate the properties of the sensorData instance from the first row
+        //    sensorData.S1 = Convert.ToInt32(firstRow["S1"]);
+        //    sensorData.S2 = firstRow["S2"].ToString();
+        //    sensorData.S3 = firstRow["S3"].ToString();
+        //    sensorData.S4 = Convert.ToInt32(firstRow["S4"]);
+        //    sensorData.S5 = firstRow["S5"].ToString();
+        //    sensorData.S6 = Convert.ToDouble(firstRow["S6"]);
+        //    sensorData.S7 = Convert.ToDouble(firstRow["S7"]);
+        //    sensorData.S8 = Convert.ToDouble(firstRow["S8"]);
+        //    sensorData.S9 = Convert.ToInt32(firstRow["S9"]);
+        //}
 
         return base.OnInitializedAsync();
     }
@@ -258,7 +296,7 @@
         {
             mach = machineComponents[ind];
             mach.count += 1;
-            DataTable d = acquireData(Sensor, TestID, int.Parse(mach.MC1), mach.count);
+            DataTable d = acquireData(Sensor, TestID, int.Parse(mach.MC1), mach.count, sensorData);
             // To do- insert in excel
             //dbConn.BulkInsert(d);
             DateTime datetime = DateTime.Now.Date;
@@ -287,8 +325,8 @@
             DataTableToCsv(d, filePath);
             string query = "INSERT INTO A(A0, A2, A3)VALUES('"+ TestID + "','" + filePath + "','" + mach.MC6 +"')";          
             dbConn.InsertData(query);
-            string query1 = @"select A.A1,S.S3,S.S4,S.S5,S.S6,S.S7,S.S8,M.M1,M.M3,TD.TD3,MC.MC3,MC.MC4,MC.MC5,S.S9,TD.TD4 
-                              from A,S,M,MC,TD where MC.MC2=M.M2 and TD.TD6=S.S2 and TD.TD2=M.M1 and TD.TD1='" + TestID + "'order by A1 desc limit 1;";
+            string query1 = @"select A.A1,M.M1,M.M3,TD.TD3,MC.MC3,MC.MC4,MC.MC5,TD.TD4 
+                              from A,M,MC,TD where MC.MC2=M.M2 and TD.TD2=M.M1 and TD.TD1='" + TestID + "'order by A1 desc limit 1;";
             dataTable = dbConn.GetData(query1);
             foreach (DataRow row in dataTable.Rows)
             {
@@ -301,13 +339,13 @@
                 B b = new B();
                 b.B1 = Convert.ToInt32(row["A1"]);
                 b.B2 = datetime.ToShortDateString().ToString();
-                b.B3 = row["S3"].ToString();
-                b.B4 = Convert.ToInt32(row["S4"]);
-                b.B5 = row["S5"].ToString();
-                b.B6 = Convert.ToDouble(row["S6"]);
-                b.B7 = Convert.ToDouble(row["S7"]);
-                test = row["S6"].ToString();
-                b.B8 = Convert.ToDouble(row["S8"]);
+                b.B3 = sensorData.S3;
+                b.B4 = sensorData.S4;
+                b.B5 = sensorData.S5;
+                b.B6 = sensorData.S6;
+                b.B7 = sensorData.S7;
+                //test = row["S6"].ToString();
+                b.B8 = sensorData.S8;
                 b.B9 = Convert.ToInt32(row["M1"]);
                 b.B10 = Convert.ToInt32(row["TD3"]);
                 b.B11 = row["MC3"].ToString();
@@ -317,7 +355,7 @@
                 b.B15 = "AXIAL";
                 b.B16 = "CIRC";
                 b.B17 = "RADIAL";
-                b.B21 = Convert.ToInt32(row["S9"]); 
+                b.B21 = sensorData.S9; 
                 string query2 = "INSERT INTO B(B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B14,B15,B16,B17,B19,B21)VALUES('" + b.B1 + "','" + b.B2 + "','" + b.B3 + "','" + b.B4 + "','" + b.B5 + "','" + b.B6 + "','" + b.B7 + "','" + b.B8 + "','" + b.B9 + "','" + b.B10 + "','" + b.B11 + "','" + b.B12 + "','" + b.B14 + "','" + b.B15 + "','" + b.B16 + "','" + b.B17 + "','" + b.B19 + "','" + b.B21 + "')";
                 dbConn.InsertData(query2);
 
@@ -439,7 +477,7 @@
 
     // Code to acquire data from the sensor and return that data in form of a data table
 
-    private DataTable acquireData(string deviceName, int gTestId, int componentId, int testRound)
+    private DataTable acquireData(string deviceName, int gTestId, int componentId, int testRound, S sensorData)
     {
         var timeStamp = new List<string>();
         double start;
@@ -449,7 +487,7 @@
         DataTable dt = new DataTable();
 
         // Define Parameters
-        int rate = 12800;
+        int rate = sensorData.S9;
         int _samplesPerChannel = (duration >= 30)? duration - 10: duration - 5;
         int bufferSize = rate * _samplesPerChannel;
 
@@ -457,9 +495,9 @@
         NationalInstruments.DAQmx.Task acelerometerTask1 = new NationalInstruments.DAQmx.Task();
 
         //Define Channels
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S6, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S7, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S8, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
 
         acelerometerTask1.Timing.ConfigureSampleClock("", rate, SampleClockActiveEdge.Rising, SampleQuantityMode.FiniteSamples, bufferSize);
         // This is the timing for data collection
@@ -501,7 +539,7 @@
 
         // Create X-axis column.
         dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(Double);
+        dtColumn.DataType = typeof(decimal);
         dtColumn.ColumnName = "X-Axis";
         //dtColumn.Caption = "Cust Name";
         dtColumn.AutoIncrement = false;
@@ -513,7 +551,7 @@
 
         // Create y-axis column.
         dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(Double);
+        dtColumn.DataType = typeof(decimal);
         dtColumn.ColumnName = "Y-Axis";
         //dtColumn.Caption = "Cust Name";
         dtColumn.AutoIncrement = false;
@@ -524,7 +562,7 @@
 
         // Create z-axis column.
         dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(Double);
+        dtColumn.DataType = typeof(decimal);
         dtColumn.ColumnName = "Z-Axis";
         //dtColumn.Caption = "Cust Name";
         dtColumn.AutoIncrement = false;
@@ -565,9 +603,9 @@
             dtRow = dt.NewRow();
             double voltsToMillivolts = 1000.0; // 1 Volt = 1000 Millivolts
             dtRow["TimeStamp"] = start + (diff * i);
-            dtRow["X-Axis"] = data[0, i] * voltsToMillivolts;
-            dtRow["Y-Axis"] = data[1, i] * voltsToMillivolts;
-            dtRow["Z-Axis"] = data[2, i] * voltsToMillivolts;
+            dtRow["X-Axis"] = data[0, i];
+            dtRow["Y-Axis"] = data[1, i];
+            dtRow["Z-Axis"] = data[2, i];
             //dtRow["G_test_id"] = gTestId;
             //dtRow["Component_id"] = componentId;
             //dtRow["Test_Round"] = testRound;

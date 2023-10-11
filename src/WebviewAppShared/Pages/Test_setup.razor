@@ -1,4 +1,5 @@
 ﻿@page "/test_setup"
+@using System.Text.Json;
 @using WebviewAppShared.Data
 @using System.Data
 @inject NavigationManager navigationManager
@@ -103,6 +104,45 @@
                 <input type="date" class="form-control" id="date" @bind-value="@objTest.Date" />
                 </div>
                 </div>*@
+
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accelerometer</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="#1 PCB 356A15 LW336579" @bind-value="@sensor.S5" />
+                    </div>
+
+                </div>
+
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accel X Sensitivity</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="102.4" @bind-value="@sensor.S6" />
+                    </div>
+
+                </div>
+
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accel Y Sensitivity</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="104.1" @bind-value="@sensor.S7" />
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accel Z Sensitivity</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="102.9" @bind-value="@sensor.S8" />
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Sampling Frequency</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="25600" @bind-value="@sensor.S9" />
+                    </div>
+
+                </div>
+
             </form>
         </div>
 
@@ -248,6 +288,7 @@
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
     public TD objTest { get; set; }
+    public S sensor { get; set; }
     public List<Test> tests { get; set; }
     public Maintenance objMaintenance { get; set; }
     public List<Maintenance> maintenances { get; set; }
@@ -281,6 +322,7 @@
         objMaintenance = new Maintenance();
         objMachine = new Machine();
         newTestDetail = new TD();
+        sensor = new S();
         GetData();
         GetSensorData();
         flag = "spindle";
@@ -291,7 +333,7 @@
         string[] devices = DaqSystem.Local.Devices;
         //Filtering the devices
         elgibleDevices = FilterCDAQValues(devices);
-  
+
 
         return base.OnInitializedAsync();
     }
@@ -321,10 +363,10 @@
     //            var newRow = $(this).closest('tr').clone();
 
     //            newRow.find('#btnAdd').remove();
-                
+
     //            // Clear any input values in the new row
     //            //newRow.find('input').val('');
-                
+
     //            // Append the new row to the table body
     //            $('#maintenance-table tbody').append(newRow);
     //           }
@@ -358,9 +400,17 @@
         ");
         }
     }
-   
+
     public void RunCommand()
-    {
+    {   
+        
+        // Getting sensor information 
+        var device = DaqSystem.Local.LoadDevice(objTest.TD6);
+        sensor.S2 = objTest.TD6;
+        sensor.S3 = device.ProductType;
+        sensor.S4 = device.SerialNumber;
+
+        sensor.S5 = sensor.S5.StartsWith("#") ? sensor.S5.Substring(1) : sensor.S5;
 
         DateTime datetime = DateTime.Now;
 
@@ -377,7 +427,7 @@
         newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
 
         navigationManager
-            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}");
+            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}/{sensor.S3}/{sensor.S4}/{sensor.S5}/{sensor.S6}/{sensor.S7}/{sensor.S8}/{sensor.S9}");
 
         Message = "Data Saved! " + newTestDetail.TD1;
     }
