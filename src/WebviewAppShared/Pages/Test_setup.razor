@@ -1,9 +1,12 @@
 ﻿@page "/test_setup"
+@using System.Text.Json;
 @using WebviewAppShared.Data
 @using System.Data
 @inject NavigationManager navigationManager
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 @using System.ComponentModel.DataAnnotations;
+@using NationalInstruments.DAQmx;
+
 
 <h1>Test Setup</h1>
 
@@ -87,9 +90,9 @@
                     <div class="col-sm-7">
                         <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.TD6">
                             <option value="select" selected>Select Sensor </option>
-                            @foreach (var item in sensors)
+                            @foreach (var item in elgibleDevices)
                             {
-                                <option value=@item.S2>@item.S2</option>
+                                <option value="@($"{item}Mod1")">@item</option>
                             }
                         </select>
                         @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
@@ -101,6 +104,45 @@
                 <input type="date" class="form-control" id="date" @bind-value="@objTest.Date" />
                 </div>
                 </div>*@
+
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accelerometer</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="#1 PCB 356A15 LW336579" @bind-value="@sensor.S5" />
+                    </div>
+
+                </div>
+
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accel X Sensitivity</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="102.4" @bind-value="@sensor.S6" />
+                    </div>
+
+                </div>
+
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accel Y Sensitivity</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="104.1" @bind-value="@sensor.S7" />
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Accel Z Sensitivity</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="102.9" @bind-value="@sensor.S8" />
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label for="machine_no" class="col-sm-5 col-form-label">Sampling Frequency</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" placeholder="25600" @bind-value="@sensor.S9" />
+                    </div>
+
+                </div>
+
             </form>
         </div>
 
@@ -246,6 +288,7 @@
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
     public TD objTest { get; set; }
+    public S sensor { get; set; }
     public List<Test> tests { get; set; }
     public Maintenance objMaintenance { get; set; }
     public List<Maintenance> maintenances { get; set; }
@@ -262,6 +305,8 @@
     public string machine { get; set; }
     public TD newTestDetail { get; set; }
 
+    public string[] elgibleDevices{ get; set; }
+
     //To be implemented
     [Required(ErrorMessage = "Email is required.")]
     public int duration { get; set; }
@@ -269,20 +314,46 @@
 
     public string flag_machineName { get; set; }
 
-    protected override Task OnInitializedAsync()
+    protected override System.Threading.Tasks.Task OnInitializedAsync()
     {
+
         objTest = new TD();
         dbConn = new Database();
         objMaintenance = new Maintenance();
         objMachine = new Machine();
         newTestDetail = new TD();
+        sensor = new S();
         GetData();
         GetSensorData();
         flag = "spindle";
         lineCount = 1;
         duration = 15;
+
+        // Get all devices from local 
+        string[] devices = DaqSystem.Local.Devices;
+        //Filtering the devices
+        elgibleDevices = FilterCDAQValues(devices);
+
+
         return base.OnInitializedAsync();
     }
+
+    static string[] FilterCDAQValues(string[] inputArray)
+    {
+        // Use LINQ to filter values that start with "cDAQ" followed by a number
+        var filteredValues = inputArray
+            .Where(value => value.StartsWith("cDAQ") && IsNumeric(value.Substring(4)))
+            .ToArray();
+
+        return filteredValues;
+    }
+
+    static bool IsNumeric(string value)
+    {
+        // Check if the value is numeric
+        return int.TryParse(value, out _);
+    }
+
     //protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
     //{
     //    if (firstRender)
@@ -292,10 +363,10 @@
     //            var newRow = $(this).closest('tr').clone();
 
     //            newRow.find('#btnAdd').remove();
-                
+
     //            // Clear any input values in the new row
     //            //newRow.find('input').val('');
-                
+
     //            // Append the new row to the table body
     //            $('#maintenance-table tbody').append(newRow);
     //           }
@@ -329,9 +400,17 @@
         ");
         }
     }
-   
+
     public void RunCommand()
-    {
+    {   
+        
+        // Getting sensor information 
+        var device = DaqSystem.Local.LoadDevice(objTest.TD6);
+        sensor.S2 = objTest.TD6;
+        sensor.S3 = device.ProductType;
+        sensor.S4 = device.SerialNumber;
+
+        sensor.S5 = sensor.S5.StartsWith("#") ? sensor.S5.Substring(1) : sensor.S5;
 
         DateTime datetime = DateTime.Now;
 
@@ -348,7 +427,7 @@
         newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
 
         navigationManager
-            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}");
+            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}/{sensor.S3}/{sensor.S4}/{sensor.S5}/{sensor.S6}/{sensor.S7}/{sensor.S8}/{sensor.S9}");
 
         Message = "Data Saved! " + newTestDetail.TD1;
     }

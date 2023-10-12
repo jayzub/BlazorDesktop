@@ -9,9 +9,9 @@ namespace WebviewAppShared.Data
     public class S
     {
         public int S1 { get; set; }
-        public string S2 { get; set; } //name
+        public string S2 { get; set; } //name cDAQ1Mod1
         public string S3 { get; set; } //DAQ Model
-        public int S4 { get; set; } //DAQ Serial 
+        public long S4 { get; set; } //DAQ Serial 
         public string S5 { get; set; } //Accelerometer
         public double S6 { get; set; } // Accel X Sens
         public double S7 { get; set; } // Accel Y Sens
