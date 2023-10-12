@@ -1,16 +1,18 @@
 @page "/service_testing"
-@page "/service_testing/{TestID:int}/{Sensor}"
+@page "/service_testing/{TestID:int}/{Sensor}/{duration:int}"
 @using WebviewAppShared.Data
 @using NationalInstruments.DAQmx;
 @using System.IO;
+@using System.Threading; 
 @using System.Data;
 @using System.Collections.Generic;
+@using System.Diagnostics;
 @inject NavigationManager navigationManager
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 <h1>Service Testing</h1>
-<p>@Sensor</p>
-<p>@test</p>
+@*<p>@Sensor</p>
+<p>@test</p>*@
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -166,6 +168,8 @@
     public int TestID { get; set; }
     [Parameter]
     public String Sensor { get; set; }
+    [Parameter]
+    public int duration { get; set; }
     public String test{ get; set; }
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
@@ -175,6 +179,8 @@
     public bool collectingData { get; set; }
     public int ind = 0;
     MC mach = new MC();
+
+    S sensorData = new S();
 
 
     List<MC> machineComponents = new List<MC>();
@@ -212,12 +218,34 @@
             mc.MC4 = row["MC4"].ToString();
             mc.MC5 = row["MC5"].ToString();
             mc.MC6 = row["MC6"].ToString();
-            
+
             mc.M1 = row["M1"].ToString();
             mc.M2 = row["M2"].ToString();
             mc.count = 0;
 
             machineComponents.Add(mc);
+        }
+
+        string query2 = $"select * from S where s2='{Sensor}'";
+
+        dataTable = dbConn.GetData(query2);
+
+
+        // Access the first row of the DataTable
+        if (dataTable.Rows.Count > 0)
+        {
+            DataRow firstRow = dataTable.Rows[0];
+
+            // Populate the properties of the sensorData instance from the first row
+            sensorData.S1 = Convert.ToInt32(firstRow["S1"]);
+            sensorData.S2 = firstRow["S2"].ToString();
+            sensorData.S3 = firstRow["S3"].ToString();
+            sensorData.S4 = Convert.ToInt32(firstRow["S4"]);
+            sensorData.S5 = firstRow["S5"].ToString();
+            sensorData.S6 = Convert.ToDouble(firstRow["S6"]);
+            sensorData.S7 = Convert.ToDouble(firstRow["S7"]);
+            sensorData.S8 = Convert.ToDouble(firstRow["S8"]);
+            sensorData.S9 = Convert.ToInt32(firstRow["S9"]);
         }
 
         return base.OnInitializedAsync();
@@ -286,8 +314,11 @@
                 b.B12 = row["MC4"].ToString();
                 b.B14 = row["MC5"].ToString();
                 b.B19 = row["TD4"].ToString();
+                b.B15 = "AXIAL";
+                b.B16 = "CIRC";
+                b.B17 = "RADIAL";
                 b.B21 = Convert.ToInt32(row["S9"]); 
-                string query2 = "INSERT INTO B(B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B14,B19,B21)VALUES('" + b.B1 + "','" + b.B2 + "','" + b.B3 + "','" + b.B4 + "','" + b.B5 + "','" + b.B6 + "','" + b.B7 + "','" + b.B8 + "','" + b.B9 + "','" + b.B10 + "','" + b.B11 + "','" + b.B12 + "','" + b.B14 + "','" + b.B19 + "','" + b.B21 + "')";
+                string query2 = "INSERT INTO B(B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B12,B14,B15,B16,B17,B19,B21)VALUES('" + b.B1 + "','" + b.B2 + "','" + b.B3 + "','" + b.B4 + "','" + b.B5 + "','" + b.B6 + "','" + b.B7 + "','" + b.B8 + "','" + b.B9 + "','" + b.B10 + "','" + b.B11 + "','" + b.B12 + "','" + b.B14 + "','" + b.B15 + "','" + b.B16 + "','" + b.B17 + "','" + b.B19 + "','" + b.B21 + "')";
                 dbConn.InsertData(query2);
 
                 //mc.MC1 = row["MC1"].ToString();
@@ -418,21 +449,21 @@
         DataTable dt = new DataTable();
 
         // Define Parameters
-        int rate = 50;
-        int _samplesPerChannel = 10;
+        int rate = sensorData.S9;
+        int _samplesPerChannel = (duration >= 30)? duration - 10: duration - 5;
         int bufferSize = rate * _samplesPerChannel;
 
         //Inilitiaze task
         NationalInstruments.DAQmx.Task acelerometerTask1 = new NationalInstruments.DAQmx.Task();
 
         //Define Channels
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -5, 5, 100, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S6, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S7, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -5, 5, sensorData.S8, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
 
         acelerometerTask1.Timing.ConfigureSampleClock("", rate, SampleClockActiveEdge.Rising, SampleQuantityMode.FiniteSamples, bufferSize);
-
-
+        // This is the timing for data collection
+        acelerometerTask1.Stream.Timeout = duration * 1000;// seconds to milliseconds
         acelerometerTask1.Control(TaskAction.Verify);
         start = DateTime.Now.ToOADate();
         collectingData = true;
@@ -546,6 +577,7 @@
 
         return dt;
     }
+    
 
     private void DataTableToCsv(DataTable dataTable, string filePath)
     {
