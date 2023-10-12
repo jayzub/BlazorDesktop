@@ -47,12 +47,14 @@
                     <label for="machine_no" class="col-sm-5 col-form-label">Machine #</label>
                     <div class="col-sm-7">
                         <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="machine_name" @bind="@objTest.TD2">
+                            
                             <option value="select" selected>Select Machine </option>
                             @foreach (var item in machines)
                             {
                                 <option value=@item.M1>@item.M1 @item.M2 </option>
                             }
                         </select>
+                        
                         @*<input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />*@
                     </div>
 
@@ -61,12 +63,15 @@
                     <label for="hours" class="col-sm-5 col-form-label">Hours (Required)</label>
                     <div class="col-sm-7">
                         <input type="text" class="form-control" id="hours" @bind-value="@objTest.TD3" required />
+                        <span asp-validation-for="objTest.TD3" class="text-danger"></span>
+
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="operator" class="col-sm-5 col-form-label">Operator (Required)</label>
                     <div class="col-sm-7">
                         <input type="text" class="form-control" id="operator" @bind-value="@objTest.TD4" required/>
+                        <span asp-validation-for="objTest.TD4" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -86,12 +91,14 @@
                     <label for="sensor_no" class="col-sm-5 col-form-label">Sensor #</label>
                     <div class="col-sm-7">
                         <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.TD6">
+                            
                             <option value="select" selected>Select Sensor </option>
                             @foreach (var item in sensors)
                             {
                                 <option value=@item.S2>@item.S2</option>
                             }
                         </select>
+                       
                         @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
                     </div>
                 </div>
@@ -330,27 +337,91 @@
         }
     }
    
+    //public void RunCommand()
+    //{
+
+        //DateTime datetime = DateTime.Now;
+
+        //query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
+        //dbConn.InsertData(query);
+
+        //// Event data table to be added in place of Maintenance
+
+        ////query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
+        ////dbConn.InsertData(query2);
+        //query3 = "SELECT * FROM TD ORDER BY TD1 DESC LIMIT 1";
+        //dataTable = dbConn.GetData(query3);
+        //newTestDetail.TD1 = Convert.ToInt32(dataTable.Rows[0]["TD1"]);
+        //newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
+
+        //navigationManager
+        //    .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}");
+
+        //Message = "Data Saved! " + newTestDetail.TD1;
+        // Check if the model is valid
+        // Check if the model is valid
+        
+    //}
     public void RunCommand()
     {
+        // Check if the model is valid
+        var validationContext = new ValidationContext(objTest);
+        var validationResults = new List<ValidationResult>();
 
-        DateTime datetime = DateTime.Now;
+        if (Validator.TryValidateObject(objTest, validationContext, validationResults, true))
+        {
+            // Check for server-side validation of Machine dropdown
+            if (objTest.TD2 != "select")
+            {
+                // Check for server-side validation of Sensor dropdown
+                if (objTest.TD6 != "select")
+                {
+                    // Check for server-side validation of Test Duration
+                    if (duration >= 15)
+                    {
+                        // Model is valid, proceed with data insertion
+                        DateTime datetime = DateTime.Now;
 
-        query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
-        dbConn.InsertData(query);
+                        query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
+                        dbConn.InsertData(query);
 
-        // Event data table to be added in place of Maintenance
+                        // Event data table to be added in place of Maintenance
 
-        //query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
-        //dbConn.InsertData(query2);
-        query3 = "SELECT * FROM TD ORDER BY TD1 DESC LIMIT 1";
-        dataTable = dbConn.GetData(query3);
-        newTestDetail.TD1 = Convert.ToInt32(dataTable.Rows[0]["TD1"]);
-        newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
+                        //query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
+                        //dbConn.InsertData(query2);
+                        query3 = "SELECT * FROM TD ORDER BY TD1 DESC LIMIT 1";
+                        dataTable = dbConn.GetData(query3);
+                        newTestDetail.TD1 = Convert.ToInt32(dataTable.Rows[0]["TD1"]);
+                        newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
 
-        navigationManager
-            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}");
+                        navigationManager
+                            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}");
 
-        Message = "Data Saved! " + newTestDetail.TD1;
+                        Message = "Data Saved! " + newTestDetail.TD1;
+                    }
+                    else
+                    {
+                        // Invalid Test Duration value
+                        Message = "Test Duration must be 15 seconds or more.";
+                    }
+                }
+                else
+                {
+                    // Invalid Sensor selection
+                    Message = "Please select a valid Sensor.";
+                }
+            }
+            else
+            {
+                // Invalid Machine selection
+                Message = "Please select a valid Machine.";
+            }
+        }
+        else
+        {
+            // Model is not valid, display validation errors
+            Message = "Validation failed. Please check the required fields.";
+        }
     }
 
     public void GetData()

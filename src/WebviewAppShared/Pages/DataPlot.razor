@@ -85,7 +85,7 @@
 
 @code {
     [Parameter]
-    public int TestID { get; set; }
+    public int TestID{ get; set; }
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
     public DataTable testRoundData { get; set; }
@@ -93,6 +93,7 @@
     public string query { get; set; }
     public string Message { get; set; }
     List<MC> machineComponents = new List<MC>();
+
     protected override Task OnInitializedAsync()
     {
         dbConn = new Database();
@@ -119,6 +120,7 @@
     //}
     public void GetDataPlotValue(string id, string testround)
     {
+        //TestID = 132;
         query = String.Format("Select A2 FROM A where A.A0={0} and A.A1={1}", TestID, testround);
         dataTable = dbConn.GetData(query);
         objPlotDatas = new List<DataPlots>();
@@ -197,6 +199,7 @@
 
     public void machineComponentDataFetch(Database dbConn)
     {
+        //TestID = 132;
         string query = "select m.M1, m.M2, mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
         dataTable = dbConn.GetData(query);
         int batchSize = 3; // Number of records to fetch in each iteration
