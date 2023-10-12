@@ -8,6 +8,7 @@
 @using CsvHelper;
 @using CsvHelper.Configuration;
 @using System.IO;
+@inject NavigationManager navigationManager
 <h1>Data Plot</h1>
 
 <div class="container">
@@ -75,7 +76,8 @@
         </div>
     <div class="row" style="margin-top:50px">
         <div class="col text-center">
-            <button type="button" class="btn btn-danger btn-lg p-3 my-3">Cancel</button>
+            <button type="button" class="btn btn-success btn-lg p-2 my-3" @onclick="triggerReviewPage">Review</button>
+            <button type="button" class="btn btn-danger btn-lg p-2 my-3">Cancel</button>
         </div>
     </div>
 </div>
@@ -229,6 +231,11 @@
             mc.DataPlotHolders.Add(holder);
             machineComponents.Add(mc);
         }
+    }
+    private void triggerReviewPage()
+    {
+        navigationManager
+            .NavigateTo($"/review_machine/{TestID}");
     }
 
 }
