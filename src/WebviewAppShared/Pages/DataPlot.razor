@@ -70,7 +70,7 @@
                 <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis"/> 
                 <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis"/>
                 <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis"/>  
-                <RadzenValueAxis Min="-5" Max="5" />
+                <RadzenValueAxis Min="-50" Max="50" />
                 <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
             </RadzenChart>
         </div>

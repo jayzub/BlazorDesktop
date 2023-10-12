@@ -435,6 +435,13 @@
     //}
     public void RunCommand()
     {
+        var device = DaqSystem.Local.LoadDevice(objTest.TD6);
+        sensor.S2 = objTest.TD6;
+        sensor.S3 = device.ProductType;
+        sensor.S4 = device.SerialNumber;
+
+        sensor.S5 = sensor.S5.StartsWith("#") ? sensor.S5.Substring(1) : sensor.S5;
+
         // Check if the model is valid
         var validationContext = new ValidationContext(objTest);
         var validationResults = new List<ValidationResult>();
@@ -465,8 +472,7 @@
                         newTestDetail.TD1 = Convert.ToInt32(dataTable.Rows[0]["TD1"]);
                         newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
 
-                        navigationManager
-                            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}");
+                        navigationManager.NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}/{sensor.S3}/{sensor.S4}/{sensor.S5}/{sensor.S6}/{sensor.S7}/{sensor.S8}/{sensor.S9}");
 
                         Message = "Data Saved! " + newTestDetail.TD1;
                     }
