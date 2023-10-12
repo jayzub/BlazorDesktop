@@ -520,7 +520,19 @@ namespace WebviewAppShared.Data
                 throw ex;
             }
         }
+        public int GetCountA(int testId)
+        {
+            SQLiteConnection conn = CreateConnection();
+            int count = 0;
+            string countQuery = $"SELECT COUNT(*) FROM A WHERE A0='{testId}'";
 
-       
+            using (SQLiteCommand command = new SQLiteCommand(countQuery, conn))
+            {
+                count = Convert.ToInt32(command.ExecuteScalar());
+            }
+
+            return count;
+        }
+
     }
 }

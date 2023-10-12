@@ -2,6 +2,9 @@
 @page "/review_machine/{TestID:int}"
 @using System.Diagnostics;
 @using System.IO;
+@using WebviewAppShared.Data
+@using System.Threading;
+@using System.Data;
 
 <h1>Review Machine</h1>
 <style>
@@ -49,24 +52,28 @@
         display: block;
     }
 </style>
-@if (showLoadingModal)
+@if (isLoading)
 {
-    <div class="modal @(showLoadingModal ? "show-modal" : "")">
-        <div class="modal-content">
-            <p>Please wait while the data collection process is running.</p>
+    @if (showLoadingModal)
+    {
+        <div class="modal @(showLoadingModal ? "show-modal" : "")">
+            <div class="modal-content">
+                <p>Please wait while the data collection process is running.</p>
+            </div>
         </div>
-    </div>
-}
+    }
 
-@if (showFileNotFoundModal)
-{
-    <div class="modal @(showFileNotFoundModal ? "show-modal" : "")">
-        <div class="modal-content">
-            <span class="close" @onclick="CloseModal">&times;</span>
-            <p>MMRI application not found at the specified path. Please confirm MMRI installation status</p>
+    @if (showFileNotFoundModal)
+    {
+        <div class="modal @(showFileNotFoundModal ? "show-modal" : "")">
+            <div class="modal-content">
+                <span class="close" @onclick="CloseModal">&times;</span>
+                <p>MMRI application not found at the specified path. Please confirm MMRI installation status</p>
+            </div>
         </div>
-    </div>
+    }
 }
+else{
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -102,51 +109,45 @@
 	<table class="table table-image table-striped text-white" style="margin-top:50px">
 		<thead>
 			<tr>
-				<th scope="col">Component</th>
+				<th scope="col">Test Count</th>
 				<th scope="col">Health</th>
 				<th scope="col">Last Tested</th>
 			</tr>
 		</thead>
-		<tbody>
-			<tr>
-				<td class="align-middle">W Axis DE Bearing</td>
-				<td class="align-middle font-weight-bold text-success">98%</td>
-				<td class="align-middle">12 September 2022</td>
-			</tr>
-			<tr>
-				<td class="align-middle">W Axis Ball Screw Bearing</td>
-				<td class="align-middle font-weight-bold text-success">95%</td>
-				<td class="align-middle">12 September 2022</td>
-			</tr>
-			<tr>
-				<td class="align-middle">W Axis Linear Bearing</td>
-				<td class="align-middle font-weight-bold text-warning">72%</td>
-				<td class="align-middle">12 September 2022</td>
-			</tr>
-			<tr>
-				<td class="align-middle">W Axis ODE Bearing</td>
-				<td class="align-middle font-weight-bold text-success">89%</td>
-				<td class="align-middle">12 September 2022</td>
-			</tr>
-			<tr>
-				<td class="align-middle">X Axis )DE Bearing</td>
-				<td class="align-middle font-weight-bold text-success">90%</td>
-				<td class="align-middle">12 September 2022</td>
-			</tr>
-		</tbody>
+            <tbody>
+                @{
+                    int testCount = 0;
+                }
+                @foreach (String m in objPlotDatas)
+                {
+                    testCount++;
+                    <!-- Move the count variable outside of the loop -->
+                    <tr>
+                        <td class="align-middle">@(testCount)</td> <!-- Increment count after displaying its value -->
+                        <td class="align-middle font-weight-bold text-success">@m</td>
+                        <td class="align-middle">@DateTime.Now.ToString("dd MMMM yyyy")</td>
+                    </tr>
+                }
+            </tbody>
 	</table>
 </div>
-
+}
 @code {
     [Parameter]
     public int TestID { get; set; }
+    private bool isLoading = true;
     private bool showLoadingModal;
     private bool showFileNotFoundModal = false;
+    public String test { get; set; }
+    public Database dbConn { get; set; }
+    public DataTable dataTable { get; set; }
+    public List<String> objPlotDatas { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         if (TestID != 0)
         {
+            isLoading = true;
             showLoadingModal = true;
             // Wait for 3 seconds before hiding the loading modal
             await Task.Delay(3000);
@@ -188,6 +189,8 @@
             }
             await Task.Delay(3000);
             showLoadingModal = false;
+            dataFetchFromMMRI();
+            isLoading = false;
             StateHasChanged();
         }
     }
@@ -196,5 +199,20 @@
     private void CloseModal()
     {
         showFileNotFoundModal = false;
+    }
+    private void dataFetchFromMMRI()
+    {
+        dbConn = new Database();
+        int count = dbConn.GetCountA(TestID);
+
+        string dataRetrievalQuery = $"SELECT D2 FROM D ORDER BY D2 DESC LIMIT {count}";
+        dataTable = dbConn.GetData(dataRetrievalQuery);
+
+        objPlotDatas = new List<string>();
+
+        foreach (DataRow row in dataTable.Rows)
+        {
+            objPlotDatas.Add(row["D2"].ToString());
+        }
     }
 }
