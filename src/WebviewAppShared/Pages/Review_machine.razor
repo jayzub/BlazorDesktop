@@ -87,18 +87,18 @@ else{
 		<div class="card bg-dark" style="margin-top:50px">
             <div class="row no-gutters">
                 <div class="col-md-3">
-                    <img class="card-img border border-3 border-success" src="_content/WebviewAppShared/annihilator.jpg" alt="annihilator">
+                        <img class="card-img border border-3 border-success" src="_content/WebviewAppShared/@string.Concat((machineComponents[0].M2), ".jpg")" alt="annihilator">
                 </div>
                 <div class="col-md-4">
                     <div class="card-body">
-                        <h5 class="card-title font-weight-bold">Annihilator</h5>
+                        <h5 class="card-title font-weight-bold">@(machineComponents[0].M2)</h5>
                         <p class="card-text">Status: GOOD</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div>
-						<h5 class="card-title">Serial Number: 5123</h5>
-                        <p>Last Tested: 12 September 2022 </p>
+                            <h5 class="card-title">Serial Number: @(machineComponents[0].M1)</h5>
+                            <p>Last Tested: @DateTime.Now.ToString("dd MMMM yyyy") </p>
                     </div>
                 </div>
             </div>
@@ -117,14 +117,44 @@ else{
             <tbody>
                 @{
                     int testCount = 0;
+                    int machineIndex = 0;
                 }
                 @foreach (String m in objPlotDatas)
                 {
-                    testCount++;
-                    <!-- Move the count variable outside of the loop -->
+                    if (testCount >= 3)
+                    {
+                        testCount = 1;
+                        machineIndex++;
+                        if (machineIndex >= machineComponents.Count)
+                        {
+                            machineIndex = 0;
+                        }
+                    }
+                    else
+                    {
+                        testCount++;
+                    }
+
+                    string textColorClass = "";
+                    switch (m)
+                    {
+                        case "YELLOW":
+                            textColorClass = "text-warning";
+                            break;
+                        case "GREEN":
+                            textColorClass = "text-success";
+                            break;
+                        case "RED":
+                            textColorClass = "text-danger";
+                            break;
+                        default:
+                            textColorClass = "text-primary"; 
+                            break;
+                    }
+
                     <tr>
-                        <td class="align-middle">@(testCount)</td> <!-- Increment count after displaying its value -->
-                        <td class="align-middle font-weight-bold text-success">@m</td>
+                        <td class="align-middle"> @(machineComponents[machineIndex].MC3) @(machineComponents[machineIndex].MC4)-@testCount</td>
+                        <td class="align-middle font-weight-bold @textColorClass">@m</td>
                         <td class="align-middle">@DateTime.Now.ToString("dd MMMM yyyy")</td>
                     </tr>
                 }
@@ -142,6 +172,7 @@ else{
     public Database dbConn { get; set; }
     public DataTable dataTable { get; set; }
     public List<String> objPlotDatas { get; set; }
+    List<MC> machineComponents = new List<MC>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -149,7 +180,6 @@ else{
         {
             isLoading = true;
             showLoadingModal = true;
-            // Wait for 3 seconds before hiding the loading modal
             await Task.Delay(3000);
 
             // Check if the file exists before attempting to start the process
@@ -202,10 +232,10 @@ else{
     }
     private void dataFetchFromMMRI()
     {
+        TestID = 28;
         dbConn = new Database();
         int count = dbConn.GetCountA(TestID);
-
-        string dataRetrievalQuery = $"SELECT D2 FROM D ORDER BY D2 DESC LIMIT {count}";
+        string dataRetrievalQuery = $"SELECT D2 FROM D ORDER BY (SELECT COUNT(*) FROM D) DESC LIMIT {count};";
         dataTable = dbConn.GetData(dataRetrievalQuery);
 
         objPlotDatas = new List<string>();
@@ -213,6 +243,23 @@ else{
         foreach (DataRow row in dataTable.Rows)
         {
             objPlotDatas.Add(row["D2"].ToString());
+        }
+        MCData();
+    }
+    protected void MCData()
+    {
+        dbConn = new Database();
+        string query = "select m.M1,m.M2,mc.MC1, mc.MC2, mc.MC3, mc.MC4, mc.MC5, mc.MC6 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
+        dataTable = dbConn.GetData(query);
+        foreach (DataRow row in dataTable.Rows)
+        {
+            MC mc = new MC();
+            mc.M1 = row["M1"].ToString();
+            mc.M2 = row["M2"].ToString();
+            mc.MC2 = row["MC2"].ToString();
+            mc.MC3 = row["MC3"].ToString();
+            mc.MC4 = row["MC4"].ToString();
+            machineComponents.Add(mc);
         }
     }
 }
