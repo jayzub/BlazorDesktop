@@ -232,7 +232,6 @@ else{
     }
     private void dataFetchFromMMRI()
     {
-        TestID = 28;
         dbConn = new Database();
         int count = dbConn.GetCountA(TestID);
         string dataRetrievalQuery = $"SELECT D2 FROM D ORDER BY (SELECT COUNT(*) FROM D) DESC LIMIT {count};";
