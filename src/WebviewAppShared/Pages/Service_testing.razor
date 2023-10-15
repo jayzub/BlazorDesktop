@@ -12,6 +12,10 @@
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
 <h1>Service Testing</h1>
+
+<span class="danger">
+    @Message
+</span>
 @*<p>@Sensor</p>
 <p>@test</p>
 <p>sensor  Data ------------</p>
@@ -195,6 +199,7 @@
     public double z_sensitivity { get; set; }
     [Parameter]
     public int frequency { get; set; }
+    public string Message { get; set; }
 
     public String test{ get; set; }
     public Database dbConn { get; set; }
@@ -479,137 +484,146 @@
 
     private DataTable acquireData(string deviceName, int gTestId, int componentId, int testRound, S sensorData)
     {
-        var timeStamp = new List<string>();
-        double start;
-        double end;
-
-
         DataTable dt = new DataTable();
-
-        // Define Parameters
-        int rate = sensorData.S9;
-        int _samplesPerChannel = (duration >= 30)? duration - 10: duration - 5;
-        int bufferSize = rate * _samplesPerChannel;
-
-        //Inilitiaze task
-        NationalInstruments.DAQmx.Task acelerometerTask1 = new NationalInstruments.DAQmx.Task();
-
-        //Define Channels
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S6, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S7, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-        acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S8, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
-
-        acelerometerTask1.Timing.ConfigureSampleClock("", rate, SampleClockActiveEdge.Rising, SampleQuantityMode.FiniteSamples, bufferSize);
-        // This is the timing for data collection
-        acelerometerTask1.Stream.Timeout = duration * 1000;// seconds to milliseconds
-        acelerometerTask1.Control(TaskAction.Verify);
-        start = DateTime.Now.ToOADate();
-        collectingData = true;
-        acelerometerTask1.Start();
-
-        AnalogMultiChannelReader reader1 = new AnalogMultiChannelReader(acelerometerTask1.Stream);
-
-        double[,] data = reader1.ReadMultiSample(bufferSize);
-
-        acelerometerTask1.Dispose();
-        end = DateTime.Now.ToOADate();
-        collectingData = false;
-
-        Console.WriteLine(DateTime.FromOADate(start).ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK"));
-        Console.WriteLine(DateTime.FromOADate(end).ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK"));
-
-
-        //Calculate time difference between each sample
-        double diff = (end - start) / (double)bufferSize;
-
-
-        //Define data columns
-        DataColumn dtColumn;
-        DataRow dtRow;
-
-        // Create TimeStamp column.
-        dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(double);
-        dtColumn.ColumnName = "TimeStamp";
-        //dtColumn.Caption = "Cust Name";
-        dtColumn.AutoIncrement = false;
-        dtColumn.ReadOnly = false;
-        dtColumn.Unique = false;
-        dt.Columns.Add(dtColumn);
-
-        // Create X-axis column.
-        dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(decimal);
-        dtColumn.ColumnName = "X-Axis";
-        //dtColumn.Caption = "Cust Name";
-        dtColumn.AutoIncrement = false;
-        dtColumn.ReadOnly = false;
-        dtColumn.Unique = false;
-        dt.Columns.Add(dtColumn);
-
-
-
-        // Create y-axis column.
-        dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(decimal);
-        dtColumn.ColumnName = "Y-Axis";
-        //dtColumn.Caption = "Cust Name";
-        dtColumn.AutoIncrement = false;
-        dtColumn.ReadOnly = false;
-        dtColumn.Unique = false;
-        dt.Columns.Add(dtColumn);
-
-
-        // Create z-axis column.
-        dtColumn = new DataColumn();
-        dtColumn.DataType = typeof(decimal);
-        dtColumn.ColumnName = "Z-Axis";
-        //dtColumn.Caption = "Cust Name";
-        dtColumn.AutoIncrement = false;
-        dtColumn.ReadOnly = false;
-        dtColumn.Unique = false;
-        dt.Columns.Add(dtColumn);
-
-        //// Create gTest ID Coulmn.
-        //dtColumn = new DataColumn();
-        //dtColumn.DataType = typeof(int);
-        //dtColumn.ColumnName = "G_test_id";
-        //dtColumn.AutoIncrement = false;
-        //dtColumn.ReadOnly = false;
-        //dtColumn.Unique = false;
-        //dt.Columns.Add(dtColumn);
-
-        //// Create Component ID Coulmn.
-        //dtColumn = new DataColumn();
-        //dtColumn.DataType = typeof(int);
-        //dtColumn.ColumnName = "Component_id";
-        //dtColumn.AutoIncrement = false;
-        //dtColumn.ReadOnly = false;
-        //dtColumn.Unique = false;
-        //dt.Columns.Add(dtColumn);
-
-        //// Create testRound ID Coulmn.
-        //dtColumn = new DataColumn();
-        //dtColumn.DataType = typeof(int);
-        //dtColumn.ColumnName = "Test_Round";
-        //dtColumn.AutoIncrement = false;
-        //dtColumn.ReadOnly = false;
-        //dtColumn.Unique = false;
-        //dt.Columns.Add(dtColumn);
-
-        // Filling the dataTable
-        for (int i = 0; i < data.GetLength(1); i++)
+        
+        try
         {
-            dtRow = dt.NewRow();
-            double voltsToMillivolts = 1000.0; // 1 Volt = 1000 Millivolts
-            dtRow["TimeStamp"] = start + (diff * i);
-            dtRow["X-Axis"] = data[0, i];
-            dtRow["Y-Axis"] = data[1, i];
-            dtRow["Z-Axis"] = data[2, i];
-            //dtRow["G_test_id"] = gTestId;
-            //dtRow["Component_id"] = componentId;
-            //dtRow["Test_Round"] = testRound;
-            dt.Rows.Add(dtRow);
+            var timeStamp = new List<string>();
+            double start;
+            double end;
+
+
+            
+
+            // Define Parameters
+            int rate = sensorData.S9;
+            int _samplesPerChannel = (duration >= 30) ? duration - 10 : duration - 5;
+            int bufferSize = rate * _samplesPerChannel;
+
+            //Inilitiaze task
+            NationalInstruments.DAQmx.Task acelerometerTask1 = new NationalInstruments.DAQmx.Task();
+
+            //Define Channels
+            acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai0", "A00", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S6, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+            acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai1", "A01", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S7, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+            acelerometerTask1.AIChannels.CreateAccelerometerChannel($"{deviceName}/ai2", "A02", AITerminalConfiguration.Pseudodifferential, -50, 50, sensorData.S8, AIAccelerometerSensitivityUnits.MillivoltsPerG, AIExcitationSource.None, 0, AIAccelerationUnits.G);
+
+            acelerometerTask1.Timing.ConfigureSampleClock("", rate, SampleClockActiveEdge.Rising, SampleQuantityMode.FiniteSamples, bufferSize);
+            // This is the timing for data collection
+            acelerometerTask1.Stream.Timeout = duration * 1000;// seconds to milliseconds
+            acelerometerTask1.Control(TaskAction.Verify);
+            start = DateTime.Now.ToOADate();
+            collectingData = true;
+            acelerometerTask1.Start();
+
+            AnalogMultiChannelReader reader1 = new AnalogMultiChannelReader(acelerometerTask1.Stream);
+
+            double[,] data = reader1.ReadMultiSample(bufferSize);
+
+            acelerometerTask1.Dispose();
+            end = DateTime.Now.ToOADate();
+            collectingData = false;
+
+            Console.WriteLine(DateTime.FromOADate(start).ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK"));
+            Console.WriteLine(DateTime.FromOADate(end).ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK"));
+
+
+            //Calculate time difference between each sample
+            double diff = (end - start) / (double)bufferSize;
+
+
+            //Define data columns
+            DataColumn dtColumn;
+            DataRow dtRow;
+
+            // Create TimeStamp column.
+            dtColumn = new DataColumn();
+            dtColumn.DataType = typeof(double);
+            dtColumn.ColumnName = "TimeStamp";
+            //dtColumn.Caption = "Cust Name";
+            dtColumn.AutoIncrement = false;
+            dtColumn.ReadOnly = false;
+            dtColumn.Unique = false;
+            dt.Columns.Add(dtColumn);
+
+            // Create X-axis column.
+            dtColumn = new DataColumn();
+            dtColumn.DataType = typeof(decimal);
+            dtColumn.ColumnName = "X-Axis";
+            //dtColumn.Caption = "Cust Name";
+            dtColumn.AutoIncrement = false;
+            dtColumn.ReadOnly = false;
+            dtColumn.Unique = false;
+            dt.Columns.Add(dtColumn);
+
+
+
+            // Create y-axis column.
+            dtColumn = new DataColumn();
+            dtColumn.DataType = typeof(decimal);
+            dtColumn.ColumnName = "Y-Axis";
+            //dtColumn.Caption = "Cust Name";
+            dtColumn.AutoIncrement = false;
+            dtColumn.ReadOnly = false;
+            dtColumn.Unique = false;
+            dt.Columns.Add(dtColumn);
+
+
+            // Create z-axis column.
+            dtColumn = new DataColumn();
+            dtColumn.DataType = typeof(decimal);
+            dtColumn.ColumnName = "Z-Axis";
+            //dtColumn.Caption = "Cust Name";
+            dtColumn.AutoIncrement = false;
+            dtColumn.ReadOnly = false;
+            dtColumn.Unique = false;
+            dt.Columns.Add(dtColumn);
+
+            //// Create gTest ID Coulmn.
+            //dtColumn = new DataColumn();
+            //dtColumn.DataType = typeof(int);
+            //dtColumn.ColumnName = "G_test_id";
+            //dtColumn.AutoIncrement = false;
+            //dtColumn.ReadOnly = false;
+            //dtColumn.Unique = false;
+            //dt.Columns.Add(dtColumn);
+
+            //// Create Component ID Coulmn.
+            //dtColumn = new DataColumn();
+            //dtColumn.DataType = typeof(int);
+            //dtColumn.ColumnName = "Component_id";
+            //dtColumn.AutoIncrement = false;
+            //dtColumn.ReadOnly = false;
+            //dtColumn.Unique = false;
+            //dt.Columns.Add(dtColumn);
+
+            //// Create testRound ID Coulmn.
+            //dtColumn = new DataColumn();
+            //dtColumn.DataType = typeof(int);
+            //dtColumn.ColumnName = "Test_Round";
+            //dtColumn.AutoIncrement = false;
+            //dtColumn.ReadOnly = false;
+            //dtColumn.Unique = false;
+            //dt.Columns.Add(dtColumn);
+
+            // Filling the dataTable
+            for (int i = 0; i < data.GetLength(1); i++)
+            {
+                dtRow = dt.NewRow();
+                double voltsToMillivolts = 1000.0; // 1 Volt = 1000 Millivolts
+                dtRow["TimeStamp"] = start + (diff * i);
+                dtRow["X-Axis"] = data[0, i];
+                dtRow["Y-Axis"] = data[1, i];
+                dtRow["Z-Axis"] = data[2, i];
+                //dtRow["G_test_id"] = gTestId;
+                //dtRow["Component_id"] = componentId;
+                //dtRow["Test_Round"] = testRound;
+                dt.Rows.Add(dtRow);
+            }
+        }
+        catch (Exception e)
+        {
+            Message = $"Error : {e}";
         }
 
 

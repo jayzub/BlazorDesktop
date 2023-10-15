@@ -10,6 +10,7 @@
 
 <h1>Test Setup</h1>
 
+
 <span class="danger">
     @Message
 </span>
@@ -50,12 +51,14 @@
                     <label for="machine_no" class="col-sm-5 col-form-label">Machine #</label>
                     <div class="col-sm-7">
                         <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="machine_name" @bind="@objTest.TD2">
+
                             <option value="select" selected>Select Machine </option>
                             @foreach (var item in machines)
                             {
                                 <option value=@item.M1>@item.M1 @item.M2 </option>
                             }
                         </select>
+
                         @*<input type="text" class="form-control" id="machine_no" placeholder="0000" @bind-value="@objTest.MachineSerialNumber" />*@
                     </div>
 
@@ -64,12 +67,15 @@
                     <label for="hours" class="col-sm-5 col-form-label">Hours (Required)</label>
                     <div class="col-sm-7">
                         <input type="text" class="form-control" id="hours" @bind-value="@objTest.TD3" required />
+                        <span asp-validation-for="objTest.TD3" class="text-danger"></span>
+
                     </div>
                 </div>
                 <div class="form-group row">
                     <label for="operator" class="col-sm-5 col-form-label">Operator (Required)</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="operator" @bind-value="@objTest.TD4" required/>
+                        <input type="text" class="form-control" id="operator" @bind-value="@objTest.TD4" required />
+                        <span asp-validation-for="objTest.TD4" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -81,7 +87,7 @@
                 <div class="form-group row">
                     <label for="mode" class="col-sm-5 col-form-label">Test Duration(sec)</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="duration" asp-for="duration" @bind-value="@duration" required placeholder="15" min="15" dfault="15"/>
+                        <input type="text" class="form-control" id="duration" asp-for="duration" @bind-value="@duration" required placeholder="15" min="15" dfault="15" />
                         <span asp-validation-for="duration" class="text-danger"></span>
                     </div>
                 </div>
@@ -89,12 +95,14 @@
                     <label for="sensor_no" class="col-sm-5 col-form-label">Sensor #</label>
                     <div class="col-sm-7">
                         <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.TD6">
+
                             <option value="select" selected>Select Sensor </option>
                             @foreach (var item in elgibleDevices)
                             {
                                 <option value="@($"{item}Mod1")">@item</option>
                             }
                         </select>
+
                         @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
                     </div>
                 </div>
@@ -108,7 +116,8 @@
                 <div class="form-group row">
                     <label for="machine_no" class="col-sm-5 col-form-label">Accelerometer</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" placeholder="#1 PCB 356A15 LW336579" @bind-value="@sensor.S5" />
+                        <input type="text" class="form-control" placeholder="#1 PCB 356A15 LW336579" @bind-value="@sensor.S5" required />
+                        <span asp-validation-for="@sensor.S5" class="text-danger"></span>
                     </div>
 
                 </div>
@@ -402,34 +411,82 @@
     }
 
     public void RunCommand()
-    {   
-        
-        // Getting sensor information 
-        var device = DaqSystem.Local.LoadDevice(objTest.TD6);
-        sensor.S2 = objTest.TD6;
-        sensor.S3 = device.ProductType;
-        sensor.S4 = device.SerialNumber;
+    {
 
-        sensor.S5 = sensor.S5.StartsWith("#") ? sensor.S5.Substring(1) : sensor.S5;
 
-        DateTime datetime = DateTime.Now;
+        // Check if the model is valid
+        var validationContext = new ValidationContext(objTest);
+        var validationResults = new List<ValidationResult>();
 
-        query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
-        dbConn.InsertData(query);
+        if (Validator.TryValidateObject(objTest, validationContext, validationResults, true))
+        {
+            // Check for server-side validation of Machine dropdown
+            if (objTest.TD2 != "select")
+            {
+                // Check for server-side validation of Sensor dropdown
+                if (objTest.TD6 != "select")
+                {
+                    // Check for server-side validation of Test Duration
+                    if (duration >= 15)
+                    {
+                        if (string.IsNullOrEmpty(sensor.S5))
+                        {
+                            Message = "Accelerometer value cannot be null or empty" ;
+                        }
+                        else
+                        {
+                            
+                        
+                        // Model is valid, proceed with data insertion
+                        DateTime datetime = DateTime.Now;
 
-        // Event data table to be added in place of Maintenance
+                        var device = DaqSystem.Local.LoadDevice(objTest.TD6);
+                        sensor.S2 = objTest.TD6;
+                        sensor.S3 = device.ProductType;
+                        sensor.S4 = device.SerialNumber;
+                       
+                        sensor.S5 = sensor.S5.StartsWith("#") ? sensor.S5.Substring(1) : sensor.S5;
 
-        //query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
-        //dbConn.InsertData(query2);
-        query3 = "SELECT * FROM TD ORDER BY TD1 DESC LIMIT 1";
-        dataTable = dbConn.GetData(query3);
-        newTestDetail.TD1 = Convert.ToInt32(dataTable.Rows[0]["TD1"]);
-        newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
+                        query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
+                        dbConn.InsertData(query);
 
-        navigationManager
-            .NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}/{sensor.S3}/{sensor.S4}/{sensor.S5}/{sensor.S6}/{sensor.S7}/{sensor.S8}/{sensor.S9}");
+                        // Event data table to be added in place of Maintenance
 
-        Message = "Data Saved! " + newTestDetail.TD1;
+                        //query2 = "INSERT INTO Maintenance(MachineSerialNumber, Axis, Component, Task, Note, TestId)VALUES('" + objTest.MachineSerialNumber + "','" + objMaintenance.Axis + "','" + objMaintenance.Component + "','" + objMaintenance.Task + "','" + objMaintenance.Note + "','" + objTest.TestId + "')";
+                        //dbConn.InsertData(query2);
+                        query3 = "SELECT * FROM TD ORDER BY TD1 DESC LIMIT 1";
+                        dataTable = dbConn.GetData(query3);
+                        newTestDetail.TD1 = Convert.ToInt32(dataTable.Rows[0]["TD1"]);
+                        newTestDetail.TD6 = Convert.ToString(dataTable.Rows[0]["TD6"]);
+
+                        navigationManager.NavigateTo($"/service_testing/{newTestDetail.TD1}/{newTestDetail.TD6}/{duration}/{sensor.S3}/{sensor.S4}/{sensor.S5}/{sensor.S6}/{sensor.S7}/{sensor.S8}/{sensor.S9}");
+
+                        Message = "Data Saved! " + newTestDetail.TD1;
+                        }
+                    }
+                    else
+                    {
+                        // Invalid Test Duration value
+                        Message = "Test Duration must be 15 seconds or more.";
+                    }
+                }
+                else
+                {
+                    // Invalid Sensor selection
+                    Message = "Please select a valid Sensor.";
+                }
+            }
+            else
+            {
+                // Invalid Machine selection
+                Message = "Please select a valid Machine.";
+            }
+        }
+        else
+        {
+            // Model is not valid, display validation errors
+            Message = "Validation failed. Please check the required fields.";
+        }
     }
 
     public void GetData()
