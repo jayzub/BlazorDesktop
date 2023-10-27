@@ -21,6 +21,7 @@
         </div>
     </div>
 
+   <p>@Message</p>
     <div class="row" style="margin-top:50px;margin-left:0">
         <div class="col-sm-8 card bg-transparent mx-4">
             <form>
@@ -31,6 +32,7 @@
                     <div class="col">
                         @foreach (MC m in machineComponents)
                         {
+
                             <div class="roundedStylings"><p>@m.MC3 @m.MC4</p>
                                 <div class="roundedMargin">
                                     <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[0].ToString())" type="button">
@@ -140,7 +142,7 @@
                 for (int i = 0; i < recordsAsDictionaries.Count; i += 5000)
                 {
 
-                        var record = recordsAsDictionaries[i];
+                    var record = recordsAsDictionaries[i];
 
                     DataPlots dataPlots = new DataPlots();
                     dataPlots.TimeStamp = ConvertToDateTime(record.TimeStamp.ToString());
@@ -150,6 +152,10 @@
                     objPlotDatas.Add(dataPlots);
                 }
             }
+        }
+        else
+        {
+            Message = "Data not available";
         }
     }
     public sealed class DataPlotsMap : ClassMap<DataPlots>
@@ -216,11 +222,12 @@
             testRoundData = dbConn.GetData(query2);
 
             MC.dataPlotHolder holder = new MC.dataPlotHolder();
+
             holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
             for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
             {
                 DataRow data = testRoundData.Rows[currentIndex];
-                holder.DataPlotPointerValue.Add(Convert.ToInt32(data["A1"]));
+                holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
                 currentIndex++;
             }
 

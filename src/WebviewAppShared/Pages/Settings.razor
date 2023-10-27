@@ -1,4 +1,5 @@
 ﻿@page "/settings"
+@using System.Diagnostics
 @using WebviewAppShared.Data
 @using System.Data
 @using Microsoft.AspNetCore.Components.Web
@@ -49,7 +50,7 @@
         <form>
             
             
-            <div class="form-group row">
+@*            <div class="form-group row">
                     <label for="machine_no" class="col-sm-5 col-form-label">Sensor Name</label>
                     <div class="col-sm-7">
                     <input type="text" class="form-control" id="sensor_name" placeholder="cDAQ1Mod1" @bind-value="@SensorForm.S2" />
@@ -69,11 +70,11 @@
                     <input type="text" class="form-control" placeholder="33966660" @bind-value="@SensorForm.S4" />
                 </div>
 
-            </div>
+            </div>*@
             <div class="form-group row">
                 <label for="machine_no" class="col-sm-5 col-form-label">Accelerometer</label>
                 <div class="col-sm-7">
-                    <input type="text" class="form-control" placeholder="#1 PCB 356A15 LW336579" @bind-value="@SensorForm.S5" />
+                    <input type="text" class="form-control" placeholder="PCB 356A15 LW336579" @bind-value="@SensorForm.S5" />
                 </div>
 
             </div>
@@ -177,9 +178,10 @@
                 <table class="table">
                     <thead>
                         <tr>
+                            @*<th>Sl No.</th>
                             <th>Sensor Name</th>
                             <th>DAQ Model</th>
-                            <th>DAQ Serial Number</th>
+                            <th>DAQ Serial Number</th>*@
                             <th>Accelerometer</th>
                             <th>Accel X Sensitivity</th>
                             <th>Accel Y Sensitivity</th>
@@ -192,9 +194,10 @@
                         @foreach (var sensor in sensorsList)
                         {
                             <tr>
+                                @*<td>@sensor.S1</td>
                                 <td>@sensor.S2</td>
                                 <td>@sensor.S3</td>
-                                <td>@sensor.S4</td>
+                                <td>@sensor.S4</td>*@
                                 <td>@sensor.S5</td>
                                 <td>@sensor.S6</td>
                                 <td>@sensor.S7</td>
@@ -304,7 +307,7 @@
         }
 
     }
-    
+
     public void GetMachineType()
     {
         //query = "SELECT * FROM Machine";
@@ -346,11 +349,20 @@
     }
     public async Task FetchSensorData()
     {
+        sensorsList.Clear();
         string query = "select * from S";
         dataTable = dbConn.GetData(query);
 
         foreach (DataRow row in dataTable.Rows)
         {
+            Debug.WriteLine("--------------------------------");
+            Debug.WriteLine(row);
+            foreach (DataColumn col in dataTable.Columns)
+            {
+                Debug.WriteLine(col);
+                Debug.WriteLine(row[col]);
+            }
+            Debug.WriteLine(row["S5"].ToString());
             S sensors = new S();
             sensors.S1 = Convert.ToInt32(row["S1"]);
             sensors.S2 = row["S2"].ToString();
@@ -369,6 +381,7 @@
     }
     public async Task FetchMachineData()
     {
+        machinesList.Clear();
         string query = "select M1,M2,M6 from M";
         dataTable = dbConn.GetData(query);
 
