@@ -254,7 +254,7 @@ namespace WebviewAppShared.Data
                                                 S2 TEXT,
                                                 S3 TEXT,
                                                 S4 INTEGER,
-                                                S5 INTEGER,
+                                                S5 TEXT,
                                                 S6 NUMERIC,
                                                 S7 NUMERIC,
                                                 S8 NUMERIC,

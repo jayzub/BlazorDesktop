@@ -27,7 +27,7 @@ namespace WebviewAppShared.Data
         public class dataPlotHolder
         {
             public string[] Count { get; set; }
-            public List<int> DataPlotPointerValue { get; set; } = new List<int>();
+            public List<int> DataPlotPointerValue { get; set; } = new List<int> { 0, 0, 0 };
         }
 
 

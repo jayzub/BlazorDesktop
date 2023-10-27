@@ -1,4 +1,5 @@
 ﻿@page "/test_setup"
+@using System.Diagnostics
 @using System.Text.Json;
 @using WebviewAppShared.Data
 @using System.Data
@@ -92,14 +93,30 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="sensor_no" class="col-sm-5 col-form-label">Sensor #</label>
+                    <label for="sensor_no" class="col-sm-5 col-form-label">DAQ</label>
                     <div class="col-sm-7">
                         <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@objTest.TD6">
 
-                            <option value="select" selected>Select Sensor </option>
+                            <option value="select" selected>Select DAQ</option>
                             @foreach (var item in elgibleDevices)
                             {
                                 <option value="@($"{item}Mod1")">@item</option>
+                            }
+                        </select>
+
+                        @*<input type="text" class="form-control" id="sensor_no" placeholder="0000" @bind-value="@objTest.Sensor" />*@
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="sensor_no" class="col-sm-5 col-form-label">Sensor #</label>
+                    <div class="col-sm-7">
+                        <select class="form-select rounded-lg" style="width: 135px;height:30px;" asp-for="sensor_name" @bind="@selectedSensor">
+
+                            <option value="select" selected>Select Sensor </option>
+                            @foreach (var item in sensors)
+                            {
+                                <option value="@item.S1">@(item.S1 + " " + item.S5)</option>
                             }
                         </select>
 
@@ -113,7 +130,7 @@
                 </div>
                 </div>*@
 
-                <div class="form-group row">
+               @* <div class="form-group row">
                     <label for="machine_no" class="col-sm-5 col-form-label">Accelerometer</label>
                     <div class="col-sm-7">
                         <input type="text" class="form-control" placeholder="#1 PCB 356A15 LW336579" @bind-value="@sensor.S5" required />
@@ -150,7 +167,7 @@
                         <input type="text" class="form-control" placeholder="25600" @bind-value="@sensor.S9" />
                     </div>
 
-                </div>
+                </div>*@
 
             </form>
         </div>
@@ -314,6 +331,8 @@
     public string machine { get; set; }
     public TD newTestDetail { get; set; }
 
+    public string selectedSensor { get; set; }
+
     public string[] elgibleDevices{ get; set; }
 
     //To be implemented
@@ -341,6 +360,7 @@
         // Get all devices from local 
         string[] devices = DaqSystem.Local.Devices;
         //Filtering the devices
+        Debug.WriteLine(devices.Length);
         elgibleDevices = FilterCDAQValues(devices);
 
 
@@ -418,6 +438,8 @@
         var validationContext = new ValidationContext(objTest);
         var validationResults = new List<ValidationResult>();
 
+        sensor = sensors.FirstOrDefault(item => item.S1 == Convert.ToInt32(selectedSensor));
+
         if (Validator.TryValidateObject(objTest, validationContext, validationResults, true))
         {
             // Check for server-side validation of Machine dropdown
@@ -429,9 +451,9 @@
                     // Check for server-side validation of Test Duration
                     if (duration >= 15)
                     {
-                        if (string.IsNullOrEmpty(sensor.S5))
+                        if (selectedSensor == "select")
                         {
-                            Message = "Accelerometer value cannot be null or empty" ;
+                            Message = "Select sensor" ;
                         }
                         else
                         {
@@ -515,7 +537,8 @@
         for (int i = 0; i < dataTable.Rows.Count; i++)
         {
             S snsr = new S();
-            snsr.S2 = Convert.ToString(dataTable.Rows[i]["S2"]);
+            snsr.S1 = Convert.ToInt32(dataTable.Rows[i]["S1"]);
+            snsr.S5 = Convert.ToString(dataTable.Rows[i]["S5"]);
             sensors.Add(snsr);
         }
     }

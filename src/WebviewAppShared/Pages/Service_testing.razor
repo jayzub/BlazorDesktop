@@ -163,6 +163,9 @@
                 {
                     <button type="button" class="btn btn-success btn-lg" @onclick="startDataAcquisiton">Start</button>
                 }
+                <br>
+                <br>
+                <button type="button" class="btn btn-success btn-lg" @onclick="viewData">View Partial Collected Data</button>
             }
 
         </div>
@@ -485,7 +488,6 @@
     private DataTable acquireData(string deviceName, int gTestId, int componentId, int testRound, S sensorData)
     {
         DataTable dt = new DataTable();
-        
         try
         {
             var timeStamp = new List<string>();

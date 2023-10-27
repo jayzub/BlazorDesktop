@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsShippingPackage>false</IsShippingPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView.WindowsForms" Version="6.0.400" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+    <PackageReference Include="Radzen.Blazor" Version="4.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebviewAppShared\WebviewAppShared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NationalInstruments.Common">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\National Instruments\Measurement Studio\DotNET\v4.0\AnyCPU\NationalInstruments.Common 19.1.40\NationalInstruments.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="NationalInstruments.DAQmx">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies (64-bit)\Current\NationalInstruments.DAQmx.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <Reference Include="NationalInstruments.Common">
+      <HintPath>..\..\..\..\Program Files (x86)\National Instruments\Measurement Studio\DotNET\v4.0\AnyCPU\NationalInstruments.Common 19.1.40\NationalInstruments.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="NationalInstruments.DAQmx">
+      <HintPath>..\..\..\..\Program Files (x86)\National Instruments\MeasurementStudioVS2012\DotNET\Assemblies (64-bit)\23.0.45.49362\NationalInstruments.DAQmx.dll</HintPath>
+    </Reference>
+  </ItemGroup>-->
+
+</Project>
