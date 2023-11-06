@@ -1,4 +1,4 @@
-@page "/service_testing"
+@page "/test_setup/service_testing"
 @page "/service_testing/{TestID:int}/{Sensor}/{duration:int}/{daqModel}/{daqSerialnumb:long}/{accelerometer}/{x_sensitivity:double}/{y_sensitivity:double}/{z_sensitivity:double}/{frequency:int}"
 @using WebviewAppShared.Data
 @using System.Text.Json;
@@ -30,10 +30,9 @@
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
-            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">DEFINE</a>
+            <a href="/test_setup/test_setup" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">DEFINE</a>
             <div class="btn btn-info"><b>CAPTURE</b></div>
-            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE</a>
-            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">REVIEW</a>
+            <a href="/test_setup/review_machine" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE</a>
         </div>
     </div>
     <div class="row" style="margin-top:50px">

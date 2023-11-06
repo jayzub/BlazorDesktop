@@ -1,4 +1,4 @@
-﻿@page "/review_machine"
+﻿@page "/test_setup/review_machine"
 @page "/review_machine/{TestID:int}"
 @using System.Diagnostics;
 @using System.IO;
@@ -76,12 +76,11 @@
 else{
 <div class="container">
     <div class="row">
-        <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
-            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">DEFINE</a>
-            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">CAPTURE</a>
-            <a href="#" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE></a>
-            <div class="btn btn-info"><b>REVIEW</b></div>
-        </div>
+            <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
+                <div href="/test_setup" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold"><b>DEFINE</b></div>
+                <a href="/service_testing" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">CAPTURE</a>
+                <a class="btn btn-info">ANALYZE</a>
+            </div>
 		<p></p>
 
 		<div class="card bg-dark" style="margin-top:50px">
