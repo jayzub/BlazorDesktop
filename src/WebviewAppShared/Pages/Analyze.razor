@@ -52,6 +52,16 @@
         display: block;
     }
 </style>
+<div class="container">
+    <div class="row">
+
+    <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
+        <a href="/test_setup" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold"><b>DEFINE</b></a>
+        <a href="/test_setup/service_testing" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">CAPTURE</a>
+        <div class="btn btn-info">ANALYZE</div>
+    </div>
+    <p></p>
+    </div>
 @if (isLoading)
 {
     @if (showLoadingModal)
@@ -74,14 +84,8 @@
     }
 }
 else{
-<div class="container">
     <div class="row">
-            <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
-                <div href="/test_setup" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold"><b>DEFINE</b></div>
-                <a href="/service_testing" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">CAPTURE</a>
-                <a class="btn btn-info">ANALYZE</a>
-            </div>
-		<p></p>
+           
 
 		<div class="card bg-dark" style="margin-top:50px">
             <div class="row no-gutters">
@@ -159,8 +163,9 @@ else{
                 }
             </tbody>
 	</table>
-</div>
 }
+    </div>
+
 @code {
     [Parameter]
     public int TestID { get; set; }
