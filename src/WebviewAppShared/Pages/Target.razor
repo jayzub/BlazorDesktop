@@ -1,0 +1,183 @@
+﻿@page "/target"
+@using System.Globalization
+@using WebviewAppShared.Data
+@using System.Data
+@inject NavigationManager navigationManager
+
+<h1>Review Machines</h1>
+<style>
+    .hoverStyle:hover {
+        cursor:pointer;
+        border:2rem solid blue;
+            }
+</style>
+
+<span class="danger">
+    @Message
+</span>
+<br />
+
+
+@if (machines is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-14">
+                <table class="table table-image text-white">
+                    <tbody>
+                        @foreach (var item in machines)
+                        {
+                            <tr>
+                                <td class="align-middle">
+                                    <span class="font-weight-bold">S.No: </span>@item.M1
+                                </td>
+                                <td class="w-25">
+                                    <img src="_content/WebviewAppShared/@string.Concat(item.M2, ".jpg")" class="border hoverStyle border-3 p-1 @StyleForBorder(item.M4) w-75" alt="@item.M2" @onclick="()=>pageRedirect(item)">
+                                    <br /><span class="font-weight-bold" style="margin-left:2.75rem;">@item.M3</span>
+                                    <div style="margin-left:3.5rem" class="font-weight-bold">
+                                        @item.M2
+                                    </div>
+                                </td>
+                                <td class="align-middle font-weight-bold w-25 h-25">
+                                    <RadzenChart class="h-25 col-sm-12" style="margin-bottom:-2rem">
+                                        <RadzenLineSeries Smooth="@smooth" Data="@revenue2019" LineType="LineType.Dashed" ValueProperty="Revenue" />
+                                        <RadzenLegend Visible="false" />
+                                        <RadzenLineSeries Smooth="@smooth" Data="@revenue2020" ValueProperty="Revenue" />
+                                        <RadzenLegend Visible="false" />
+                                    </RadzenChart><br /><span style="margin-left:6rem">Status: <span class="@StyleForStatus(item.M4)">@item.M4</span></span>
+                                </td>
+                                <td class="align-middle"><span class="font-weight-bold">Last Tested:</span>@item.M5</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    public Database dbConn { get; set; }
+    public DataTable dataTable { get; set; }
+    public M objMachine { get; set; }
+    //public List<Machine> machines { get; set; }
+    public List<M> machines { get; set; }
+    public string query { get; set; }
+    public string Message { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        dbConn = new Database();
+        objMachine = new M();
+        GetData();
+        return base.OnInitializedAsync();
+    }
+    public void GetData()
+    {
+        query = "SELECT * FROM M";
+        dataTable = dbConn.GetData(query);
+
+        machines = new List<M>();
+
+        for (int i = 0; i < dataTable.Rows.Count; i++)
+        {
+            M mch = new M();
+            mch.M1 = Convert.ToString(dataTable.Rows[i]["M1"]);
+            mch.M2 = Convert.ToString(dataTable.Rows[i]["M2"]);
+            mch.M3 = Convert.ToString(dataTable.Rows[i]["M3"]);
+            mch.M4 = Convert.ToString(dataTable.Rows[i]["M4"]);
+            mch.M5 = Convert.ToString(dataTable.Rows[i]["M5"]);
+            machines.Add(mch);
+        }
+    }
+    bool smooth = false;
+    bool showDataLabels = false;
+
+    class DataItem
+    {
+        public string Date { get; set; }
+        public double Revenue { get; set; }
+    }
+
+    string FormatAsUSD(object value)
+    {
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
+    }
+
+    string FormatAsMonth(object value)
+    {
+        if (value != null)
+        {
+            return Convert.ToDateTime(value).ToString("MMM");
+        }
+
+        return string.Empty;
+    }
+
+    DataItem[] revenue2019 = new DataItem[] {
+        new DataItem
+        {
+
+        },
+    };
+
+    DataItem[] revenue2020 = new DataItem[] {
+        new DataItem
+        {
+
+        }
+    };
+    private string StyleForStatus(string a)
+    {
+        if (a == "Good")
+        {
+            return "text-success";
+        }
+        else if (a == "Service")
+        {
+            return "text-danger";
+        }
+        else if (a == "Monitor")
+        {
+            return "text-warning";
+        }
+        else
+        {
+            return " ";
+        }
+    }
+
+    private string StyleForBorder(string a)
+    {
+        if (a == "Good")
+        {
+            return "border-success";
+        }
+        else if (a == "Service")
+        {
+            return "border-danger";
+        }
+        else if (a == "Monitor")
+        {
+            return "border-warning";
+        }
+        else
+        {
+            return " ";
+        }
+    }
+    public void pageRedirect(M item)
+    {
+        //Url call with id related to the specific m/c's recent data
+        //navigationManager
+        //    .NavigateTo($"/target1/{TestID}");
+        navigationManager
+            .NavigateTo($"/target1/5");
+
+    }
+}
