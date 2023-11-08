@@ -8,7 +8,6 @@
 @using System.ComponentModel.DataAnnotations;
 @using NationalInstruments.DAQmx;
 
-
 <h1>Test Setup</h1>
 
 
@@ -78,12 +77,12 @@
                         <span asp-validation-for="objTest.TD4" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="form-group row">
+               @* <div class="form-group row">
                     <label for="mode" class="col-sm-5 col-form-label">Mode</label>
                     <div class="col-sm-7">
                         <input type="text" class="form-control" id="mode" @bind-value="@objTest.TD5" />
                     </div>
-                </div>
+                </div>*@
                 <div class="form-group row">
                     <label for="mode" class="col-sm-5 col-form-label">Test Duration(sec)</label>
                     <div class="col-sm-7">
@@ -468,7 +467,8 @@
                        
                         sensor.S5 = sensor.S5.StartsWith("#") ? sensor.S5.Substring(1) : sensor.S5;
 
-                        query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
+                        //query = "INSERT INTO TD(TD2, TD3, TD4, TD5, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD5 + "','" + objTest.TD6 + "','" + datetime + "')";
+                        query = "INSERT INTO TD(TD2, TD3, TD4, TD6, TD7)VALUES('" + objTest.TD2 + "','" + objTest.TD3 + "','" + objTest.TD4 + "','" + objTest.TD6 + "','" + datetime + "')";
                         dbConn.InsertData(query);
 
                         // Event data table to be added in place of Maintenance

@@ -8,6 +8,11 @@
 @using System.Data;
 @using System.Collections.Generic;
 @using System.Diagnostics;
+@using CsvHelper;
+@using CsvHelper.Configuration;
+@using System.Globalization
+@using System.Text.RegularExpressions
+@using System.Collections
 @inject NavigationManager navigationManager
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 
@@ -30,15 +35,15 @@
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
-            <a href="/test_setup/test_setup" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">DEFINE</a>
+            <a href="/test_setup/" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">DEFINE</a>
             <div class="btn btn-info"><b>CAPTURE</b></div>
             <a href="/test_setup/review_machine" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">ANALYZE</a>
         </div>
     </div>
     <div class="row" style="margin-top:50px">
-        <div class="col-sm-4 card bg-transparent">
+        <div class="col-sm-5 card bg-transparent">
 
-            <form>
+            @*<form>
 
                 @foreach (MC m in machineComponents)
                 {
@@ -50,7 +55,7 @@
                         }
                     </label>
                 }
-
+*@
 
                 @*
                 <label class="col col-form-label">W Axis DE Bearing <span>(3 of 3)</span> <span class="oi oi-check" style="color: green" aria-hidden="true"></span></label>
@@ -70,11 +75,38 @@
                 <label class="col col-form-label">Z Axis Linear Rail <span>(0 of 3)</span></label>
                 <label class="col col-form-label">Z Axis ODE Bearing <span>(0 of 3)</span></label>
                 *@
+            @*</form>*@
+            <form>
+                <div class="form-group row">
+                    <label class="col col-form-label font-weight-bold">Components</label>
+                </div>
+                <div class="combiner combine_head" style="display:flex;flex-direction:row;flex-flow: row wrap;">
+                    <div class="col">
+                        @foreach (MC m in machineComponents)
+                        {
+
+                            <div class="roundedStylings">
+                                <p>@m.MC3 @m.MC4</p>
+                                <div class="roundedMargin">
+                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[0].ToString())" type="button">
+                                        <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[0]</span>
+                                    </button>
+                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[1].ToString())" type="button">
+                                        <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[1]</span>
+                                    </button>
+                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[2].ToString())" type="button">
+                                        <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[2]</span>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </form>
         </div>
 
 
-        <div class="col-sm-5 card bg-dark">
+        <div class="col-sm-4 card bg-dark">
             <img class="card-img" src="_content/WebviewAppShared/bearing.png" alt="bearing">
         </div>
 
@@ -91,6 +123,15 @@
                     <label class="col col-form-label text-success">Export Program</label>
                 </div>
             </form>
+        </div>
+        <div class="my-5 mx-0" style="width:950px;padding:0;">
+            <RadzenChart Style="height:400px;margin-left:0px;color:white">
+                <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis" />
+                <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis" />
+                <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis" />
+                <RadzenValueAxis Min="-50" Max="50" />
+                <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
+            </RadzenChart>
         </div>
     </div>
     <div class="row">
@@ -211,8 +252,9 @@
     public bool moveSensor { get; set; }
     public bool collectingData { get; set; }
     public int ind = 0;
+    public DataTable testRoundData { get; set; }
+    public List<DataPlots> objPlotDatas { get; set; }
     MC mach = new MC();
-
     S sensorData = new S();
 
 
@@ -232,7 +274,8 @@
         sensorData.S7 = y_sensitivity;
         sensorData.S8 = z_sensitivity;
         sensorData.S9 = frequency;
-
+        int batchSize = 3; // Number of records to fetch in each iteration
+        int currentIndex = 0;
 
 
 
@@ -268,6 +311,22 @@
             mc.M2 = row["M2"].ToString();
             mc.count = 0;
 
+            machineComponents.Add(mc);
+
+            MC.dataPlotHolder holder = new MC.dataPlotHolder();
+
+            string query3 = String.Format("Select A1 FROM A where A.A0 = {0}", TestID);
+            testRoundData = dbConn.GetData(query3);
+            holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
+            for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
+            {
+                DataRow data = testRoundData.Rows[currentIndex];
+                holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
+                currentIndex++;
+            }
+
+            // Add the dataPlotHolder instance to the DataPlotHolders list for this component
+            mc.DataPlotHolders.Add(holder);
             machineComponents.Add(mc);
         }
 
@@ -494,8 +553,6 @@
             double end;
 
 
-            
-
             // Define Parameters
             int rate = sensorData.S9;
             int _samplesPerChannel = (duration >= 30) ? duration - 10 : duration - 5;
@@ -631,7 +688,121 @@
 
         return dt;
     }
-    
+    //public void machineComponentDataFetch(Database dbConn)
+    //{
+    //    //string query = "select m.M1, m.M2, mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
+    //    //dataTable = dbConn.GetData(query);
+    //    int batchSize = 3; // Number of records to fetch in each iteration
+    //    int currentIndex = 0; // Keep track of the current index in the dataTable
+    //    foreach (DataRow row in dataTable.Rows)
+    //    {
+    //        MC mc = new MC();
+    //        mc.MC1 = row["MC1"].ToString();
+    //        mc.MC2 = row["MC2"].ToString();
+    //        mc.MC3 = row["MC3"].ToString();
+    //        mc.MC4 = row["MC4"].ToString();
+
+    //        // Fetch the next batch of records from query2 and populate dataPlotPointerValue
+    //        string query2 = String.Format("Select A1 FROM A where A.A0 = {0}", TestID);
+    //        testRoundData = dbConn.GetData(query2);
+
+    //        MC.dataPlotHolder holder = new MC.dataPlotHolder();
+
+    //        holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
+    //        for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
+    //        {
+    //            DataRow data = testRoundData.Rows[currentIndex];
+    //            holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
+    //            currentIndex++;
+    //        }
+
+    //        // Add the dataPlotHolder instance to the DataPlotHolders list for this component
+    //        mc.DataPlotHolders.Add(holder);
+    //        machineComponents.Add(mc);
+    //    }
+    //}
+
+    public void GetDataPlotValue(string id, string testround)
+    {
+        string query4 = String.Format("Select A2 FROM A where A.A0={0} and A.A1={1}", TestID, testround);
+        dataTable = dbConn.GetData(query4);
+        objPlotDatas = new List<DataPlots>();
+
+        if (dataTable.Rows.Count == 1) // Assuming the query returns a single row with the CSV path
+        {
+            string csvPath = dataTable.Rows[0]["A2"].ToString();
+
+            // Read the CSV file using CsvHelper
+            using (var reader = new StreamReader(csvPath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(new CultureInfo("en-US"))))
+            {
+                // Read the CSV data as a list of dictionaries
+                var recordsAsDictionaries = csv.GetRecords<dynamic>().ToList();
+
+                // Map the data to the DataPlots class
+                for (int i = 0; i < recordsAsDictionaries.Count; i += 5000)
+                {
+
+                    var record = recordsAsDictionaries[i];
+
+                    DataPlots dataPlots = new DataPlots();
+                    dataPlots.TimeStamp = ConvertToDateTime(record.TimeStamp.ToString());
+                    dataPlots.X_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["X-Axis"]);
+                    dataPlots.Y_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["Y-Axis"]);
+                    dataPlots.Z_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["Z-Axis"]);
+                    objPlotDatas.Add(dataPlots);
+                }
+            }
+        }
+        else
+        {
+            Message = "Data not available";
+        }
+    }
+    public sealed class DataPlotsMap : ClassMap<DataPlots>
+    {
+        public DataPlotsMap()
+        {
+            // Map the property names to the CSV headers
+            Map(m => m.TimeStamp).Name("TimeStamp");
+            Map(m => m.X_Axis).Name("X-Axis");
+            Map(m => m.Y_Axis).Name("Y-Axis");
+            Map(m => m.Z_Axis).Name("Z-Axis");
+        }
+    }
+    public static string ConvertToFormattedDateTime(string str)
+    {
+        if (double.TryParse(str, out var timeStampValue))
+        {
+            DateTime dateTime = DateTime.FromOADate(timeStampValue);
+            return dateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
+        }
+        else
+        {
+            throw new Exception("Unable to parse the input as a valid DateTime.");
+        }
+    }
+    public static DateTime ConvertToDateTime(string str)
+    {
+        string formattedDateTime = ConvertToFormattedDateTime(str);
+        string pattern = @"(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d{3})";
+        if (Regex.IsMatch(formattedDateTime, pattern))
+        {
+            Match match = Regex.Match(formattedDateTime, pattern);
+            int year = Convert.ToInt32(match.Groups[1].Value);
+            int month = Convert.ToInt32(match.Groups[2].Value);
+            int day = Convert.ToInt32(match.Groups[3].Value);
+            int hour = Convert.ToInt32(match.Groups[4].Value);
+            int minute = Convert.ToInt32(match.Groups[5].Value);
+            int second = Convert.ToInt32(match.Groups[6].Value);
+            int millisecond = Convert.ToInt32(match.Groups[7].Value);
+            return new DateTime(year, month, day, hour, minute, second, millisecond);
+        }
+        else
+        {
+            throw new Exception("Unable to parse.");
+        }
+    }
 
     private void DataTableToCsv(DataTable dataTable, string filePath)
     {
