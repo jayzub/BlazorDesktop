@@ -42,7 +42,7 @@
         </div>
     </div>
     <div class="row" style="margin-top:50px">
-        <div class="col-sm-5 card bg-transparent">
+        <div class="col-12 col-md-6 bg-transparent">
 
             @*<form>
 
@@ -107,33 +107,39 @@
         </div>
 
 
-        <div class="col-sm-4 card bg-dark">
-            <img class="card-img" src="_content/WebviewAppShared/bearing.png" alt="bearing">
+        <div class="col-6  bg-dark">
+            <div class="row">
+            <div class="col-6 h-20">
+                <img class="card-img" src="_content/WebviewAppShared/bearing.png" alt="bearing">
+            </div>
+            <div class="col-6 h-20 card bg-transparent">
+                <form>
+                    <div class="form-group row">
+                        <label class="col col-form-label font-weight-bold">G-Code Program:</label>
+                    </div>
+
+                    <div class="form-group row">
+                        @*<label class="col col-form-label">Intimidator 120 XW-Axix.nc</label>*@
+                    </div>
+                    <div class="form-group row">
+                        <label class="col col-form-label text-success">Export Program</label>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12 h-25 " style="padding:0;">
+                <RadzenChart Style="height:400px;margin-left:0px;color:white">
+                    <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis" />
+                    <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis" />
+                    <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis" />
+                    <RadzenValueAxis Min="-50" Max="50" />
+                    <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
+                </RadzenChart>
+            </div>
+            </div>
+            
         </div>
 
-        <div class="col-sm-3 card bg-transparent">
-            <form>
-                <div class="form-group row">
-                    <label class="col col-form-label font-weight-bold">G-Code Program:</label>
-                </div>
-
-                <div class="form-group row">
-                    @*<label class="col col-form-label">Intimidator 120 XW-Axix.nc</label>*@
-                </div>
-                <div class="form-group row">
-                    <label class="col col-form-label text-success">Export Program</label>
-                </div>
-            </form>
-        </div>
-        <div class="my-5 mx-0" style="width:950px;padding:0;">
-            <RadzenChart Style="height:400px;margin-left:0px;color:white">
-                <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis" />
-                <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis" />
-                <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis" />
-                <RadzenValueAxis Min="-50" Max="50" />
-                <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
-            </RadzenChart>
-        </div>
+        
     </div>
     <div class="row">
         <div class="col text-center">
@@ -169,7 +175,7 @@
 
     <!-- Add the loader HTML element -->
 
-    <div class="row" style="margin-top:50px">
+    <div class="row" style="margin-top:10px">
         <div class="col text-center">
             @if (TestCompleted == true)
             {
