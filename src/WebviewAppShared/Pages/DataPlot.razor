@@ -9,8 +9,10 @@
 @using CsvHelper.Configuration;
 @using System.IO;
 @inject NavigationManager navigationManager
-<h1>Data Plot</h1>
 
+
+<h1>Data Plot</h1>
+@*
 <div class="container">
     <div class="row">
         <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
@@ -57,17 +59,17 @@
                     <label class="col col-form-label font-weight-bold">G-Code Program:</label>
                 </div>
 
-                <div class="form-group row">
+                <div class="form-group row">*@
                     @*<label class="col col-form-label">Intimidator 120 XW-Axix.nc</label>*@
-                </div>
+ @*               </div>
                 <div class="form-group row">
                     <label class="col col-form-label text-success">Export Program</label>
                 </div>
             </form>
         </div>
-    </div>
+    </div>*@
 
-        <div class="my-5 mx-0" style="width:950px;padding:0;">
+@*        <div class="my-5 mx-0" style="width:950px;padding:0;">
             <RadzenChart Style="height:400px;margin-left:0px;color:white">
                 <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis"/> 
                 <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis"/>
@@ -75,171 +77,171 @@
                 <RadzenValueAxis Min="-50" Max="50" />
                 <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
             </RadzenChart>
-        </div>
-    <div class="row" style="margin-top:50px">
+        </div>*@
+@*    <div class="row" style="margin-top:50px">
         <div class="col text-center">
             <button type="button" class="btn btn-success btn-lg p-2 my-3" @onclick="triggerReviewPage">Review</button>
             <button type="button" class="btn btn-danger btn-lg p-2 my-3">Cancel</button>
         </div>
-    </div>
-</div>
+    </div>*@
+@*</div>*@
 @code
 {
 }
 
 @code {
-    [Parameter]
-    public int TestID { get; set; }
-    public Database dbConn { get; set; }
-    public DataTable dataTable { get; set; }
-    public DataTable testRoundData { get; set; }
-    public List<DataPlots> objPlotDatas { get; set; }
-    public string query { get; set; }
-    public string Message { get; set; }
-    List<MC> machineComponents = new List<MC>();
-    protected override Task OnInitializedAsync()
-    {
-        dbConn = new Database();
-        machineComponentDataFetch(dbConn);
-        //GetDataPlotValue();
-        return base.OnInitializedAsync();
-    }
-    //public void GetDataPlotValue(String id,String testround)
+    //[Parameter]
+    //public int TestID { get; set; }
+    //public Database dbConn { get; set; }
+    //public DataTable dataTable { get; set; }
+    //public DataTable testRoundData { get; set; }
+    //public List<DataPlots> objPlotDatas { get; set; }
+    //public string query { get; set; }
+    //public string Message { get; set; }
+    //List<MC> machineComponents = new List<MC>();
+    //protected override Task OnInitializedAsync()
     //{
-    //    //query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%5000)=0";
-    //    //query = String.Format("Select TimeStamp,X_Axis,Y_Axis,Z_Axis FROM A t1 where t1.test_round={1} and t1.component_id={0} and t1.G_Test_Id={2}",id,testround,TestID);
-    //    query = String.Format("Select A2 FROM A where A.A0={0} and A.A1={1}", TestID,testround);
+    //    dbConn = new Database();
+    //    machineComponentDataFetch(dbConn);
+    //    //GetDataPlotValue();
+    //    return base.OnInitializedAsync();
+    //}
+    ////public void GetDataPlotValue(String id,String testround)
+    ////{
+    ////    //query = "Select * from (SELECT CAST(TimeStamp AS varchar) as TimeStamp,X_Axis,Y_Axis,Z_Axis,ROW_NUMBER() OVER (ORDER BY TimeStamp) as RowCount FROM testtable) where (RowCount%5000)=0";
+    ////    //query = String.Format("Select TimeStamp,X_Axis,Y_Axis,Z_Axis FROM A t1 where t1.test_round={1} and t1.component_id={0} and t1.G_Test_Id={2}",id,testround,TestID);
+    ////    query = String.Format("Select A2 FROM A where A.A0={0} and A.A1={1}", TestID,testround);
+    ////    dataTable = dbConn.GetData(query);
+    ////    objPlotDatas = new List<DataPlots>();
+    ////    for (int i = 0; i < dataTable.Rows.Count; i++)
+    ////    {
+    ////        DataPlots pD = new DataPlots();
+    ////        pD.TimeStamp = ConvertToDateTime(DateTime.FromOADate(Convert.ToDouble(dataTable.Rows[i]["TimeStamp"])).ToString("yyyy-MM-dd HH:mm:ss.fffffffK"));
+    ////        pD.X_Axis = Convert.ToDouble(dataTable.Rows[i]["X_Axis"].ToString());
+    ////        pD.Y_Axis = Convert.ToDouble(dataTable.Rows[i]["Y_Axis"].ToString());
+    ////        pD.Z_Axis=Convert.ToDouble(dataTable.Rows[i]["Z_Axis"].ToString());
+    ////        objPlotDatas.Add(pD);
+    ////    }
+    ////}
+    //public void GetDataPlotValue(string id, string testround)
+    //{
+    //    query = String.Format("Select A2 FROM A where A.A0={0} and A.A1={1}", TestID, testround);
     //    dataTable = dbConn.GetData(query);
     //    objPlotDatas = new List<DataPlots>();
-    //    for (int i = 0; i < dataTable.Rows.Count; i++)
+
+    //    if (dataTable.Rows.Count == 1) // Assuming the query returns a single row with the CSV path
     //    {
-    //        DataPlots pD = new DataPlots();
-    //        pD.TimeStamp = ConvertToDateTime(DateTime.FromOADate(Convert.ToDouble(dataTable.Rows[i]["TimeStamp"])).ToString("yyyy-MM-dd HH:mm:ss.fffffffK"));
-    //        pD.X_Axis = Convert.ToDouble(dataTable.Rows[i]["X_Axis"].ToString());
-    //        pD.Y_Axis = Convert.ToDouble(dataTable.Rows[i]["Y_Axis"].ToString());
-    //        pD.Z_Axis=Convert.ToDouble(dataTable.Rows[i]["Z_Axis"].ToString());
-    //        objPlotDatas.Add(pD);
+    //        string csvPath = dataTable.Rows[0]["A2"].ToString();
+
+    //        // Read the CSV file using CsvHelper
+    //        using (var reader = new StreamReader(csvPath))
+    //        using (var csv = new CsvReader(reader, new CsvConfiguration(new CultureInfo("en-US"))))
+    //        {
+    //            // Read the CSV data as a list of dictionaries
+    //            var recordsAsDictionaries = csv.GetRecords<dynamic>().ToList();
+
+    //            // Map the data to the DataPlots class
+    //            for (int i = 0; i < recordsAsDictionaries.Count; i += 5000)
+    //            {
+
+    //                var record = recordsAsDictionaries[i];
+
+    //                DataPlots dataPlots = new DataPlots();
+    //                dataPlots.TimeStamp = ConvertToDateTime(record.TimeStamp.ToString());
+    //                dataPlots.X_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["X-Axis"]);
+    //                dataPlots.Y_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["Y-Axis"]);
+    //                dataPlots.Z_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["Z-Axis"]);
+    //                objPlotDatas.Add(dataPlots);
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        Message = "Data not available";
     //    }
     //}
-    public void GetDataPlotValue(string id, string testround)
-    {
-        query = String.Format("Select A2 FROM A where A.A0={0} and A.A1={1}", TestID, testround);
-        dataTable = dbConn.GetData(query);
-        objPlotDatas = new List<DataPlots>();
+    //public sealed class DataPlotsMap : ClassMap<DataPlots>
+    //{
+    //    public DataPlotsMap()
+    //    {
+    //        // Map the property names to the CSV headers
+    //        Map(m => m.TimeStamp).Name("TimeStamp");
+    //        Map(m => m.X_Axis).Name("X-Axis");
+    //        Map(m => m.Y_Axis).Name("Y-Axis");
+    //        Map(m => m.Z_Axis).Name("Z-Axis");
+    //    }
+    //}
+    //public static string ConvertToFormattedDateTime(string str)
+    //{
+    //    if (double.TryParse(str, out var timeStampValue))
+    //    {
+    //        DateTime dateTime = DateTime.FromOADate(timeStampValue);
+    //        return dateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
+    //    }
+    //    else
+    //    {
+    //        throw new Exception("Unable to parse the input as a valid DateTime.");
+    //    }
+    //}
+    //public static DateTime ConvertToDateTime(string str)
+    //{
+    //    string formattedDateTime = ConvertToFormattedDateTime(str);
+    //    string pattern = @"(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d{3})";
+    //    if (Regex.IsMatch(formattedDateTime, pattern))
+    //    {
+    //        Match match = Regex.Match(formattedDateTime, pattern);
+    //        int year = Convert.ToInt32(match.Groups[1].Value);
+    //        int month = Convert.ToInt32(match.Groups[2].Value);
+    //        int day = Convert.ToInt32(match.Groups[3].Value);
+    //        int hour = Convert.ToInt32(match.Groups[4].Value);
+    //        int minute = Convert.ToInt32(match.Groups[5].Value);
+    //        int second = Convert.ToInt32(match.Groups[6].Value);
+    //        int millisecond = Convert.ToInt32(match.Groups[7].Value);
+    //        return new DateTime(year, month, day, hour, minute, second, millisecond);
+    //    }
+    //    else
+    //    {
+    //        throw new Exception("Unable to parse.");
+    //    }
+    //} 
 
-        if (dataTable.Rows.Count == 1) // Assuming the query returns a single row with the CSV path
-        {
-            string csvPath = dataTable.Rows[0]["A2"].ToString();
+    //public void machineComponentDataFetch(Database dbConn)
+    //{
+    //    string query = "select m.M1, m.M2, mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
+    //    dataTable = dbConn.GetData(query);
+    //    int batchSize = 3; // Number of records to fetch in each iteration
+    //    int currentIndex = 0; // Keep track of the current index in the dataTable
+    //    foreach (DataRow row in dataTable.Rows)
+    //    {
+    //        MC mc = new MC();
+    //        mc.MC1 = row["MC1"].ToString();
+    //        mc.MC2 = row["MC2"].ToString();
+    //        mc.MC3 = row["MC3"].ToString();
+    //        mc.MC4 = row["MC4"].ToString();
 
-            // Read the CSV file using CsvHelper
-            using (var reader = new StreamReader(csvPath))
-            using (var csv = new CsvReader(reader, new CsvConfiguration(new CultureInfo("en-US"))))
-            {
-                // Read the CSV data as a list of dictionaries
-                var recordsAsDictionaries = csv.GetRecords<dynamic>().ToList();
+    //        // Fetch the next batch of records from query2 and populate dataPlotPointerValue
+    //        string query2 = String.Format("Select A1 FROM A where A.A0 = {0}", TestID);
+    //        testRoundData = dbConn.GetData(query2);
 
-                // Map the data to the DataPlots class
-                for (int i = 0; i < recordsAsDictionaries.Count; i += 5000)
-                {
+    //        MC.dataPlotHolder holder = new MC.dataPlotHolder();
 
-                    var record = recordsAsDictionaries[i];
+    //        holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
+    //        for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
+    //        {
+    //            DataRow data = testRoundData.Rows[currentIndex];
+    //            holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
+    //            currentIndex++;
+    //        }
 
-                    DataPlots dataPlots = new DataPlots();
-                    dataPlots.TimeStamp = ConvertToDateTime(record.TimeStamp.ToString());
-                    dataPlots.X_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["X-Axis"]);
-                    dataPlots.Y_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["Y-Axis"]);
-                    dataPlots.Z_Axis = Convert.ToDouble(((IDictionary<string, object>)record)["Z-Axis"]);
-                    objPlotDatas.Add(dataPlots);
-                }
-            }
-        }
-        else
-        {
-            Message = "Data not available";
-        }
-    }
-    public sealed class DataPlotsMap : ClassMap<DataPlots>
-    {
-        public DataPlotsMap()
-        {
-            // Map the property names to the CSV headers
-            Map(m => m.TimeStamp).Name("TimeStamp");
-            Map(m => m.X_Axis).Name("X-Axis");
-            Map(m => m.Y_Axis).Name("Y-Axis");
-            Map(m => m.Z_Axis).Name("Z-Axis");
-        }
-    }
-    public static string ConvertToFormattedDateTime(string str)
-    {
-        if (double.TryParse(str, out var timeStampValue))
-        {
-            DateTime dateTime = DateTime.FromOADate(timeStampValue);
-            return dateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
-        }
-        else
-        {
-            throw new Exception("Unable to parse the input as a valid DateTime.");
-        }
-    }
-    public static DateTime ConvertToDateTime(string str)
-    {
-        string formattedDateTime = ConvertToFormattedDateTime(str);
-        string pattern = @"(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d{3})";
-        if (Regex.IsMatch(formattedDateTime, pattern))
-        {
-            Match match = Regex.Match(formattedDateTime, pattern);
-            int year = Convert.ToInt32(match.Groups[1].Value);
-            int month = Convert.ToInt32(match.Groups[2].Value);
-            int day = Convert.ToInt32(match.Groups[3].Value);
-            int hour = Convert.ToInt32(match.Groups[4].Value);
-            int minute = Convert.ToInt32(match.Groups[5].Value);
-            int second = Convert.ToInt32(match.Groups[6].Value);
-            int millisecond = Convert.ToInt32(match.Groups[7].Value);
-            return new DateTime(year, month, day, hour, minute, second, millisecond);
-        }
-        else
-        {
-            throw new Exception("Unable to parse.");
-        }
-    } 
-
-    public void machineComponentDataFetch(Database dbConn)
-    {
-        string query = "select m.M1, m.M2, mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
-        dataTable = dbConn.GetData(query);
-        int batchSize = 3; // Number of records to fetch in each iteration
-        int currentIndex = 0; // Keep track of the current index in the dataTable
-        foreach (DataRow row in dataTable.Rows)
-        {
-            MC mc = new MC();
-            mc.MC1 = row["MC1"].ToString();
-            mc.MC2 = row["MC2"].ToString();
-            mc.MC3 = row["MC3"].ToString();
-            mc.MC4 = row["MC4"].ToString();
-
-            // Fetch the next batch of records from query2 and populate dataPlotPointerValue
-            string query2 = String.Format("Select A1 FROM A where A.A0 = {0}", TestID);
-            testRoundData = dbConn.GetData(query2);
-
-            MC.dataPlotHolder holder = new MC.dataPlotHolder();
-
-            holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
-            for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
-            {
-                DataRow data = testRoundData.Rows[currentIndex];
-                holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
-                currentIndex++;
-            }
-
-            // Add the dataPlotHolder instance to the DataPlotHolders list for this component
-            mc.DataPlotHolders.Add(holder);
-            machineComponents.Add(mc);
-        }
-    }
-    private void triggerReviewPage()
-    {
-        navigationManager
-            .NavigateTo($"/review_machine/{TestID}");
-    }
+    //        // Add the dataPlotHolder instance to the DataPlotHolders list for this component
+    //        mc.DataPlotHolders.Add(holder);
+    //        machineComponents.Add(mc);
+    //    }
+    //}
+    //private void triggerReviewPage()
+    //{
+    //    navigationManager
+    //        .NavigateTo($"/review_machine/{TestID}");
+    //}
 
 }

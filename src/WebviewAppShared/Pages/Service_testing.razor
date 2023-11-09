@@ -20,6 +20,7 @@
 
 <span class="danger">
     @Message
+    @message2
 </span>
 @*<p>@Sensor</p>
 <p>@test</p>
@@ -88,14 +89,14 @@
                             <div class="roundedStylings">
                                 <p>@m.MC3 @m.MC4</p>
                                 <div class="roundedMargin">
-                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[0].ToString())" type="button">
-                                        <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[0]</span>
+                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(TestID.ToString(),m.DataPlotPointerValue[0].ToString())" type="button">
+                                        <span class="rounded" aria-hidden="true">1</span>
                                     </button>
-                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[1].ToString())" type="button">
-                                        <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[1]</span>
+                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(TestID.ToString(),m.DataPlotPointerValue[1].ToString())" type="button">
+                                        <span class="rounded" aria-hidden="true">2</span>
                                     </button>
-                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[2].ToString())" type="button">
-                                        <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[2]</span>
+                                    <button class="noStyle" @onclick="()=>GetDataPlotValue(TestID.ToString(),m.DataPlotPointerValue[2].ToString())" type="button">
+                                        <span class="rounded" aria-hidden="true">3</span>
                                     </button>
                                 </div>
                             </div>
@@ -243,6 +244,7 @@
     [Parameter]
     public int frequency { get; set; }
     public string Message { get; set; }
+    public string message2 { get; set; }
 
     public String test{ get; set; }
     public Database dbConn { get; set; }
@@ -254,6 +256,9 @@
     public int ind = 0;
     public DataTable testRoundData { get; set; }
     public List<DataPlots> objPlotDatas { get; set; }
+
+
+
     MC mach = new MC();
     S sensorData = new S();
 
@@ -311,22 +316,22 @@
             mc.M2 = row["M2"].ToString();
             mc.count = 0;
 
-            machineComponents.Add(mc);
+            //machineComponents.Add(mc);
 
-            MC.dataPlotHolder holder = new MC.dataPlotHolder();
+            //MC.dataPlotHolder holder = new MC.dataPlotHolder();
 
-            string query3 = String.Format("Select A1 FROM A where A.A0 = {0}", TestID);
-            testRoundData = dbConn.GetData(query3);
-            holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
-            for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
-            {
-                DataRow data = testRoundData.Rows[currentIndex];
-                holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
-                currentIndex++;
-            }
+            //string query3 = String.Format("Select A1 FROM A where A.A0 = {0}", TestID);
+            //testRoundData = dbConn.GetData(query3);
+            //holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
+            //for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
+            //{
+            //    DataRow data = testRoundData.Rows[currentIndex];
+            //    holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
+            //    currentIndex++;
+            //}
 
-            // Add the dataPlotHolder instance to the DataPlotHolders list for this component
-            mc.DataPlotHolders.Add(holder);
+            //// Add the dataPlotHolder instance to the DataPlotHolders list for this component
+            //mc.DataPlotHolders.Add(holder);
             machineComponents.Add(mc);
         }
 
@@ -360,6 +365,8 @@
 
         if (ind < machineComponents.Count)
         {
+
+
             mach = machineComponents[ind];
             mach.count += 1;
             DataTable d = acquireData(Sensor, TestID, int.Parse(mach.MC1), mach.count, sensorData);
@@ -434,9 +441,25 @@
                 //mc.count = 0;
 
                 //machineComponents.Add(mc);
+
+
+                //
+
+
+                string query3 = String.Format("Select max(A1)  as MAX FROM A");
+                DataTable dt = dbConn.GetData(query3);
+                var max_test_id = dt.Rows[0]["MAX"].ToString();
+
+
+                machineComponents[ind].DataPlotPointerValue[mach.count - 1] = Convert.ToInt32(max_test_id);
+
+                // Add the dataPlotHolder instance to the DataPlotHolders list for this component
+                
+                //
             }
             if (mach.count == 3)
             {
+                
                 moveSensor = true;
                 ind++;
             }
@@ -724,6 +747,8 @@
 
     public void GetDataPlotValue(string id, string testround)
     {
+        message2 = $"ID = {id}, TestRound = {testround}";
+
         string query4 = String.Format("Select A2 FROM A where A.A0={0} and A.A1={1}", TestID, testround);
         dataTable = dbConn.GetData(query4);
         objPlotDatas = new List<DataPlots>();
