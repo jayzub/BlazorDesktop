@@ -1,0 +1,290 @@
+﻿@page "/target1"
+@page "/target1/{TestID:int}"
+@using System.Diagnostics;
+@using System.IO;
+@using Radzen.Blazor.Rendering;
+@using WebviewAppShared.Data
+@using System.Threading;
+@using System.Data;
+@inject NavigationManager navigationManager
+
+<h1>Review Machine</h1>
+<style>
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+        padding-top: 60px;
+    }
+
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        color: #333; /* Dark gray text color */
+        width: 25%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .close {
+        color: #aaa;
+        margin-left: auto;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    .show-modal {
+        display: block;
+    }
+
+    .circle-marker {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px; 
+    }
+</style>
+@if (isLoading)
+{
+    @if (showLoadingModal)
+    {
+        <div class="modal @(showLoadingModal ? "show-modal" : "")">
+            <div class="modal-content">
+                <p>Please wait while the data collection process is running.</p>
+            </div>
+        </div>
+    }
+
+    @if (showFileNotFoundModal)
+    {
+        <div class="modal @(showFileNotFoundModal ? "show-modal" : "")">
+            <div class="modal-content">
+                <span class="close" @onclick="CloseModal">&times;</span>
+                <p>MMRI application not found at the specified path. Please confirm MMRI installation status</p>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="btn-group btn-breadcrumb breadcrumb-default bg-dark">
+                <div href="/test_setup" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold"><b>DEFINE</b></div>
+                <a href="/service_testing" class="btn btn-default visible-lg-block visible-md-block text-white font-weight-bold">CAPTURE</a>
+                <a class="btn btn-info">ANALYZE</a>
+            </div>
+            <p></p>
+
+            <div class="card bg-dark" style="margin-top:50px">
+                <div class="row no-gutters">
+                    <div class="col-md-3">
+                        <img class="card-img border border-3 border-success" src="_content/WebviewAppShared/@string.Concat((machineComponents[0].M2), ".jpg")" alt="annihilator">
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card-body">
+                            <h5 class="card-title font-weight-bold">@(machineComponents[0].M2)</h5>
+                            <p class="card-text">Status: <span class="text-success font-weight-bold">GOOD</span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div>
+                            <h5 class="card-title">Serial Number: @(machineComponents[0].M1)</h5>
+                            <p>Last Tested: @DateTime.Now.ToString("dd MMMM yyyy") </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p></p>
+
+        <table class="table table-image table-striped text-white" style="margin-top:50px">
+            <thead>
+                <tr>
+                    <th scope="col">Components</th>
+                    <th scope="col">Health</th>
+                    <th scope="col">Last Tested</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int testCount = 0;
+                    int machineIndex = 0;
+                }
+                @foreach (String m in objPlotDatas)
+                {
+                    if (testCount >= 3)
+                    {
+                        testCount = 1;
+                        machineIndex++;
+                        if (machineIndex >= machineComponents.Count)
+                        {
+                            machineIndex = 0;
+                        }
+                    }
+                    else
+                    {
+                        testCount++;
+                    }
+
+                    string textColorClass = "";
+                    string bgClass = "";
+                    switch (m)
+                    {
+                        case "YELLOW":
+                            textColorClass = "text-warning";
+                            bgClass = "bg-warning";
+                            break;
+                        case "GREEN":
+                            textColorClass = "text-success";
+                            bgClass = "bg-success";
+                            break;
+                        case "RED":
+                            textColorClass = "text-danger";
+                            bgClass = "bg-red";
+                            break;
+                        default:
+                            textColorClass = "text-primary";
+                            break;
+                    }
+
+
+                    string path = machineComponents[0].M1 + '/' + (machineComponents[machineIndex].MC3+" "+machineComponents[machineIndex].MC4);
+                    
+                    <tr @onclick="() => plotPageRedirect(path)">
+                        
+                        <td class="align-middle">
+                            <span class="circle-marker @bgClass"></span>
+                             @(machineComponents[machineIndex].MC3) @(machineComponents[machineIndex].MC4)-@testCount
+                        </td>
+                        <td class="align-middle font-weight-bold @textColorClass">@m</td>
+                        <td class="align-middle">@DateTime.Now.ToString("dd MMMM yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+@code {
+    [Parameter]
+    public int TestID { get; set; }
+    private bool isLoading = true;
+    private bool showLoadingModal;
+    private bool showFileNotFoundModal = false;
+    public String test { get; set; }
+    public Database dbConn { get; set; }
+    public DataTable dataTable { get; set; }
+    public List<String> objPlotDatas { get; set; }
+    List<MC> machineComponents = new List<MC>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TestID != 0)
+        {
+            isLoading = true;
+            showLoadingModal = true;
+            //await Task.Delay(3000);-----------------------------------------------------
+
+            // Check if the file exists before attempting to start the process
+            //const string MMRI_PATH = @"C:\Program Files\McMaster Manufcutring Research Institute\MMRI_QM\application";
+            //const string EXE_NAME = "MMRI_QM.exe";
+            //string exePath = Path.Combine(MMRI_PATH, EXE_NAME);
+
+            //if (File.Exists(exePath))
+            //{
+            //    ProcessStartInfo startInfo = new ProcessStartInfo
+            //        {
+            //            CreateNoWindow = false,
+            //            UseShellExecute = false,
+            //            FileName = exePath,
+            //            WindowStyle = ProcessWindowStyle.Hidden
+            //        };
+
+            //    try
+            //    {
+            //        using (Process exeProcess = Process.Start(startInfo))
+            //        {
+            //            await exeProcess.WaitForExitAsync();
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"Error: {ex.Message}");
+            //        showFileNotFoundModal = true;
+            //        StateHasChanged();
+            //    }
+            //}
+            //else
+            //{
+            //    showLoadingModal = false;
+            //    showFileNotFoundModal = true;
+            //    StateHasChanged();
+            //}
+            //await Task.Delay(3000);--------------------------------------------------------------
+            showLoadingModal = false;
+            dataFetchFromMMRI();
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+
+    private void CloseModal()
+    {
+        showFileNotFoundModal = false;
+    }
+    private void dataFetchFromMMRI()
+    {
+        dbConn = new Database();
+        int count = dbConn.GetCountA(TestID);
+        string dataRetrievalQuery = $"SELECT D2 FROM D ORDER BY (SELECT COUNT(*) FROM D) DESC LIMIT {count};";
+        dataTable = dbConn.GetData(dataRetrievalQuery);
+
+        objPlotDatas = new List<string>();
+
+        foreach (DataRow row in dataTable.Rows)
+        {
+            objPlotDatas.Add(row["D2"].ToString());
+        }
+        MCData();
+    }
+    protected void MCData()
+    {
+        dbConn = new Database();
+        string query = "select m.M1,m.M2,mc.MC1, mc.MC2, mc.MC3, mc.MC4, mc.MC5, mc.MC6 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
+        dataTable = dbConn.GetData(query);
+        foreach (DataRow row in dataTable.Rows)
+        {
+            MC mc = new MC();
+            mc.M1 = row["M1"].ToString();
+            mc.M2 = row["M2"].ToString();
+            mc.MC2 = row["MC2"].ToString();
+            mc.MC3 = row["MC3"].ToString();
+            mc.MC4 = row["MC4"].ToString();
+            machineComponents.Add(mc);
+        }
+    }
+    public void plotPageRedirect(string path)
+    {
+    navigationManager
+                .NavigateTo($"/target2/{TestID}/{path}");
+    }
+}
