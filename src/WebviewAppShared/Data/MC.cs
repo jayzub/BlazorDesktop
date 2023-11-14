@@ -21,6 +21,9 @@ namespace WebviewAppShared.Data
         public string M1 { get; set; }
         public string M2 { get; set; }
 
+        //Test Date
+        public string td { get; set; }
+
         // List to hold dataPlotHolder instances for each batch
         public List<dataPlotHolder> DataPlotHolders { get; set; } = new List<dataPlotHolder>();
 

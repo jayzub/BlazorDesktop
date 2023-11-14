@@ -17,7 +17,7 @@
         <div class="col-sm-4 card bg-transparent">
             <form>
                 <div class="form-group row">
-                    <label class="col col-form-label font-weight-bold">Components</label>
+                    <label class="col col-form-label font-weight-bold">Tests</label>
                 </div>
                 <div class="combiner combine_head" style="display:flex;flex-direction:row;flex-flow: row wrap;">
                     <div class="col">
@@ -25,7 +25,7 @@
                         {
 
                             <div class="roundedStylings">
-                                <p>@m.MC3 @m.MC4</p>
+                                <p>@m.td</p>
                                 <div class="roundedMargin">
                                     <button class="noStyle" @onclick="()=>GetDataPlotValue(m.MC1,m.DataPlotHolders[0].DataPlotPointerValue[0].ToString())" type="button">
                                         <span class="rounded" aria-hidden="true">@m.DataPlotHolders[0].Count[0]</span>
@@ -58,22 +58,31 @@
                 <div class="col-md-4">
                     <div>
                         <h5 class="card-title">Serial Number: @(machineComponents[0].M1)</h5>
-                        <p>Last Tested: @DateTime.Now.ToString("dd MMMM yyyy") </p>
+                        <p>Last Tested: @(machineComponents[0].td) </p>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="my-5 mx-0" style="width:950px;padding:0;">
-        <RadzenChart Style="height:400px;margin-left:0px;color:white">
-            <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis" />
-            <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis" />
-            <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis" />
-            <RadzenValueAxis Min="-50" Max="50" />
-            <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
-        </RadzenChart>
+            <div class="w-100" style="padding:0;">
+                <RadzenChart Style="height:400px;margin-left:0px;color:white">
+                    <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis" />
+                    <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis" />
+                    <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis" />
+                    <RadzenValueAxis Min="-50" Max="50" />
+                    <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
+                </RadzenChart>
             </div>
+            <div class="w-100 my-4" style="padding:0;">
+                <RadzenChart Style="height:400px;margin-left:0px;color:white">
+                    <RadzenLineSeries Smooth="true" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="X_Axis" LineType="LineType.Solid" ValueProperty="X_Axis" />
+                    <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Y_Axis" ValueProperty="Y_Axis" />
+                    <RadzenLineSeries Smooth="false" Data="@objPlotDatas" CategoryProperty="TimeStamp" Title="Z_Axis" ValueProperty="Z_Axis" />
+                    <RadzenValueAxis Min="-50" Max="50" />
+                    <RadzenCategoryAxis Formatter=@(value => ((DateTime)value).ToString("H:mm:ss")) Padding="20" />
+                </RadzenChart>
+            </div>
+        </div>
+        
+    </div>
     <div class="col-sm-3 card bg-transparent" style="float:right">
         <form>
             <div class="form-group row">
@@ -189,35 +198,19 @@
 
     public void machineComponentDataFetch(Database dbConn)
     {
-        string query = "select m.M1, m.M2, mc.MC1, mc.MC2, mc.MC3, mc.MC4 from M m, TD td, MC mc where td.TD2 = m.M1 and m.M2 = mc.MC2 and td.TD1 =" + TestID;
+        string query = "select m.M1, m.M2, td.TD7 from M m, TD td where td.TD2 = m.M1 and td.TD2 =" + mcID + " ORDER BY td.TD7 DESC";
         dataTable = dbConn.GetData(query);
-        int batchSize = 3; // Number of records to fetch in each iteration
-        int currentIndex = 0; // Keep track of the current index in the dataTable
         foreach (DataRow row in dataTable.Rows)
         {
             MC mc = new MC();
             mc.M1 = row["M1"].ToString();
             mc.M2 = row["M2"].ToString();
-            mc.MC1 = row["MC1"].ToString();
-            mc.MC2 = row["MC2"].ToString();
-            mc.MC3 = row["MC3"].ToString();
-            mc.MC4 = row["MC4"].ToString();
-
-            // Fetch the next batch of records from query2 and populate dataPlotPointerValue
-            string query2 = String.Format("Select A1 FROM A where A.A0 = {0}", TestID);
-            testRoundData = dbConn.GetData(query2);
+            mc.td = DateTime.Parse(row["TD7"].ToString()).ToString("dd MMMM yyyy");
 
             MC.dataPlotHolder holder = new MC.dataPlotHolder();
 
-            holder.Count = new string[] { "1", "2", "3" }; // Fixed count values for each batch
-            for (int i = 0; i < batchSize && currentIndex < testRoundData.Rows.Count; i++)
-            {
-                DataRow data = testRoundData.Rows[currentIndex];
-                holder.DataPlotPointerValue[i] = Convert.ToInt32(data["A1"]);
-                currentIndex++;
-            }
-
-            // Add the dataPlotHolder instance to the DataPlotHolders list for this component
+            holder.Count = new string[] { "1", "2", "3" }; 
+            
             mc.DataPlotHolders.Add(holder);
             machineComponents.Add(mc);
         }
